@@ -1,0 +1,13 @@
+name: Energy
+title: Energy
+username:
+account: cuddjim
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1531146
+bundleId: 2620725
+url: https://cuddjim.shinyapps.io/Energy/
+when: 1574818838.62041
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|Conversion factors.xlsx|JCapp.R
