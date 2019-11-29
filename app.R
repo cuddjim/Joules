@@ -72,6 +72,7 @@ ui <- dashboardPage(
       box(sliderInput("year",h6(''), 2005, 2018, value=c(2005,2018),sep = ""),width = 3),
       actionButton("instructions","Display user guide"),
       textOutput("show")
+      
       ),
     
     fluidRow(
@@ -205,15 +206,36 @@ server <- function(input, output) {
       mutate(efficiency=output/input)
   })
   
+  linegraph_reactive2 <- reactive({
+    
+    selected_province = input$province
+    selected_commodity = input$commodity2
+    min_year = min(input$year)
+    max_year = max(input$year)
+    
+    subject_matter_2 %>% filter(province == selected_province,
+                                commodity %in% selected_commodity,
+                                year %in% min_year:max_year) %>%
+      mutate(efficiency=output/input)
+  })
+  
   output$linegraph <- renderPlotly({
     
-    plot_ly(linegraph_reactive()) %>%
-      add_trace(x= ~year, y= ~input,type = 'scatter', mode = 'lines', name= 'Input',
-                marker = list(color = '#55579A'),
+    plot_ly() %>%
+      add_trace(data=linegraph_reactive(),x= ~year, y= ~input,type = 'scatter', mode = 'lines', name= 'Input',
+                line = list(color = '#55579A'),
                 hoverinfo = "text",
                 text = ~paste(input,' t')) %>%
-      add_trace(x= ~year, y = ~output, type = 'scatter', mode = 'lines', name = 'Output', yaxis = 'y2',
+      add_trace(data=linegraph_reactive(),x= ~year, y = ~output, type = 'scatter', mode = 'lines', name = 'Output', yaxis = 'y2',
                 line = list(color = '#4db8ff'),
+                hoverinfo = "text",
+                text = ~paste(output,'GWh')) %>%
+      add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'lines', name= 'Input',
+                line = list(color = '#FF0000'),
+                hoverinfo = "text",
+                text = ~paste(input,' t')) %>%
+      add_trace(data=linegraph_reactive2(),x= ~year, y = ~output, type = 'scatter', mode = 'lines', name = 'Output', yaxis = 'y2',
+                line = list(color = '#9E1A1A'),
                 hoverinfo = "text",
                 text = ~paste(output,'GWh')) %>%
       layout(xaxis = list(title = ""),
