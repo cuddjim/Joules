@@ -21,8 +21,8 @@ require(tools)
 
 # set working directory
 # setwd("~/Documents/Projects/Energy/")
-setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/Energy")
-# setwd("C:/Users/lab/Documents/GitHub/Energy")
+# setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/Energy")
+setwd("C:/Users/lab/Documents/GitHub/Energy")
 
 # create provincial data
 source("create_data.R")
@@ -30,9 +30,9 @@ source("create_data.R")
 # create input vectors
 years = 2005:2018
 areas = prov_map@data$NAME
-indicators = c("input","output","price")
-commodities = c("wood","total_petroleum_products","light_fuel_oil","total_heavy_fuel_oil",
-                "diesel","total_coal","natural_gas","uranium","methane","propane")
+indicators = c("input","output","price",'emission')
+commodities = c("wood","light_fuel_oil","heavy_fuel_oil","diesel","total_coal",
+                "natural_gas","uranium","methane","propane")
 
 # create input lists
 list_of_areas = lapply(paste0("<p style='color:black;font-family:Verdana,Geneva,sans-serif;font-weight:bold;font-size: 14px'>",
@@ -44,6 +44,7 @@ list_of_indicators = lapply(paste0("<p style='color:black;font-family:Verdana,Ge
 list_of_commodities = lapply(paste0("<p style='color:black;font-family:Verdana,Geneva,sans-serif;font-weight:bold;font-size: 14px'>",
                                     toTitleCase(gsub('_', ' ', commodities)),"</p>"),HTML)
 
+commodity_labels = toTitleCase(gsub('_', ' ', commodities))
 # create user interface
 ui <- dashboardPage(
   
@@ -54,7 +55,7 @@ ui <- dashboardPage(
   dashboardBody(
     
     tags$head(tags$style(HTML('
-    
+
         /* logo */
         .skin-blue .main-header .logo {
                               background-color: #55579A;
@@ -68,7 +69,7 @@ ui <- dashboardPage(
         /* navbar (rest of the header) */
         .skin-blue .main-header .navbar {
                               background-color: #55579A;
-                              }        
+                              }
 
         /* main sidebar */
         .skin-blue .main-sidebar {
@@ -78,32 +79,57 @@ ui <- dashboardPage(
 
                               '))),
     fluidRow(
-      box(sliderInput("year",h6(''), min=2005, max=2018, value=c(2005,2018)),width = 3),
-      box(selectInput("indicator", label = HTML('<FONT color="#55579A"><FONT size="4pt">Indicator'),
-                 choices = indicators, selected='price'),width = 3),
-      box(selectInput("commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Commodity'),
-                      choices = commodities, selected = 'wood'),width = 3),
-      box(selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
-                      choices = areas, selected='Ontario'),width = 3)),
+      
+      box(sliderInput("year",h6(''), 2005, 2018, value=c(2005,2018),sep = ""),width = 3),
+      actionButton("instructions","Display instructions"),
+      textOutput("show")
+      ),
+    
     fluidRow(
-      box(status = "primary",leafletOutput("plot"),width=12),
+      box(status = "primary",leafletOutput("plot", height= '600px'),width="100%")),
+    fluidRow(box(column(6,selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
+                             choices = areas, selected='Ontario')),
+             column(3,selectInput("commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
+                                   choices = setNames(commodities,commodity_labels), selected = 'wood')),
+             column(3,selectInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">with'),
+                             choices = setNames(commodities,commodity_labels), selected = 'wood')), width = 12)),
+    fluidRow(
+      
       box(title = "bubblebubble",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bubble"),width= 6),
-      box(title = "InputOutput",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("linegraph"),width = 6),
-      infoBoxOutput("fuelselected")
+      box(title = "bitchtits",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bitchtits"),width= 6)
+      
+      ),
+    
+    fluidRow(
+      
+      column(title = "InputOutput",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("linegraph"),width = 6),
+      column(title = "InputOutput",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("linegraph2"),width = 6)
+      
+    )
       
     ))
-)
+
 
 # create server
 server <- function(input, output) {
   
-   output$plot <- renderLeaflet({
+  observeEvent(input$instruction_yes, {
     
-    leaflet(options = leafletOptions(
+    output$show <- renderText({
+   
+      paste0("Test set of instructions")
+    })
+    
+  })
+  
+   
+  output$plot <- renderLeaflet({
+    
+    leaflet(options = leafletOptions(minZoom = 4, maxZoom = 6,
       attributionControl=FALSE)) %>%
-      setView(lng = -100.4, lat = 53, zoom = 4) %>%
-      addProviderTiles(providers$Stamen.Watercolor,
-                       options = providerTileOptions(opacity = 1))
+      setView(lng = -100.4, lat = 60, zoom = 4) %>%
+      addProviderTiles(providers$Hydda.Base,
+                       options = providerTileOptions(opacity = 0.8))
     
   })
   
@@ -111,14 +137,39 @@ server <- function(input, output) {
     
     min_year = min(input$year)
     max_year = max(input$year)
-    min_selection = str_c(input$commodity,'_',input$indicator,'_',min_year)
-    max_selection = str_c(input$commodity,'_',input$indicator,'_',max_year)
+    min_emissions = str_c(input$commodity,'_emission_',min_year)
+    max_emissions = str_c(input$commodity,'_emission_',max_year)
+    min_outputs = str_c(input$commodity,'_output_',min_year)
+    max_outputs = str_c(input$commodity,'_output_',max_year)
     
     prov_map@data %<>% 
-      mutate(selection=rowMeans(select(.,min_selection:max_selection),na.rm=TRUE)) %>%
-      mutate(scaled_selection=scale(selection))
+      mutate(emissions=round(rowMeans(select(.,min_emissions:max_emissions),na.rm=TRUE),0),
+             outputs=round(rowMeans(select(.,min_outputs:max_outputs),na.rm=TRUE),0))
     
     prov_map
+    
+  })
+  
+  observe({
+    
+    prov_popup <- paste0('<strong>',selected_com_ind()$NAME,', ',
+                         input$commodity,"</strong> <br>",
+                         '<strong>Emissions: </strong>',selected_com_ind()$emissions, " tonnes",
+                         '<br><strong>Outputs: </strong>',selected_com_ind()$outputs, " MWh")
+    
+    leafletProxy("plot") %>%
+      clearShapes() %>%
+      clearControls() %>%
+      addPolygons(data = selected_com_ind(),
+                  fillColor = ~colorBin("Reds", emissions, 5)(emissions),
+                  color = "#BDBDC3",
+                  fillOpacity = 0.2,
+                  weight = 1) %>%
+      addCircles(data=selected_com_ind(), lng = ~x, lat = ~y,
+                 fillOpacity = 0.6,
+                 color = 'blue',
+                 popup = prov_popup,
+                 weight = ~outputs/10000)
     
   })
   
@@ -131,44 +182,19 @@ server <- function(input, output) {
     subject_matter_2 %>%
       filter(province == selected_province & year %in% min_year:max_year) %>%
       mutate(year_opacity = ((year-1999)^3)/6859)
-      # group_by(commodity) %>%
-      # summarize(ins = round(mean(input),0), out = round(mean(output),0), price = round(mean(price,na.rm=TRUE),0))
-
   })
   
   output$bubble <- renderPlotly({
     
-    selected_prov_input() %>%
+    efficiency_selected() %>%
       plot_ly(type = 'scatter', mode = 'markers', x = ~input, y = ~output, size = ~price, color = ~commodity,
               colors = viridis_pal(option = "D")(10),
-              marker = list(sizeref=0.1), hoverinfo = 'text', 
+              marker = list(sizeref=0.1, line = list(width = 0.5, color = '#FFFFFF')), hoverinfo = 'text', 
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>',
                           '<b>Input: </b>',format(input,big.mark=",",scientific=FALSE),'Tonsslashkilolitres','<br>',
                           '<b>Output: </b>',format(output,big.mark=",",scientific=FALSE),'MgHours')) %>%
       layout(showlegend=FALSE)
-    
-  })
-  
-  observe({
-    
-    ccs_popup <- paste0('<strong>',selected_com_ind()$NAME,'</strong>',
-                        "<br><strong>",input$commodity,": </strong>",
-                        selected_com_ind()$selection, " t/kL/m[^3]")
-    
-    leafletProxy("plot") %>%
-      clearShapes() %>%
-      clearControls() %>%
-      addPolygons(data = selected_com_ind(),
-                  fillColor = ~colorBin("Reds", selection, 5)(selection),
-                  color = "#BDBDC3",
-                  fillOpacity = 0.5,
-                  weight = 1) %>%
-      addCircles(data=selected_com_ind(), lng = ~x, lat = ~y,
-                 #color = ~colorBin("Blues", selection, 8)(selection),
-                 fillOpacity = 0.6,
-                 popup = ccs_popup,
-                 weight = ~scaled_selection*50)
     
   })
   
@@ -181,7 +207,8 @@ server <- function(input, output) {
     
     subject_matter_2 %>% filter(province == selected_province,
                                 commodity %in% selected_commodity,
-                                year %in% min_year:max_year)
+                                year %in% min_year:max_year) %>%
+      mutate(efficiency=output/input)
   })
   
   output$linegraph <- renderPlotly({
@@ -201,15 +228,53 @@ server <- function(input, output) {
     
   })
   
-  output$fuelselected <- renderInfoBox({
+  output$linegraph2 <- renderPlotly({
     
-    infoBox("Current fuel selected",paste0(input$commodity), icon("charging-station"), color = "blue")
+    plot_ly(linegraph_reactive()) %>%
+      add_trace(x= ~year, y= ~price,type = 'scatter', mode = 'lines', name= 'Price',
+                marker = list(color = '#55579A'),
+                hoverinfo = "text",
+                text = ~paste(price,' t')) %>%
+      add_trace(x= ~year, y = ~efficiency, type = 'scatter', mode = 'lines', name = 'Efficiency', yaxis = 'y2',
+                line = list(color = '#4db8ff'),
+                hoverinfo = "text",
+                text = ~paste(efficiency,'GWh')) %>%
+      layout(xaxis = list(title = ""),
+             yaxis = list(range=c(0,~max(price)),side = 'left', title = 'Price (metric tonnes)', showgrid = FALSE, zeroline = FALSE),
+             yaxis2 = list(range=c(0,~max(efficiency)),side = 'right', overlaying = "y", title = 'Efficiency in MWh', showgrid = FALSE, zeroline = FALSE))
     
   })
+  
+  
+  efficiency_selected <- reactive({
+    
+    min_year = min(input$year)
+    max_year = max(input$year)
+    selected_province = input$province
+    
+    subject_matter_2 %>%
+      filter(province == selected_province & year %in% min_year:max_year) %>%
+      mutate(year_opacity = ((year-1999)^3)/6859,
+             efficiency=output/input)
+    
+  })
+  
+  output$bitchtits <- renderPlotly({
+
+    efficiency_selected() %>%
+      plot_ly(type = 'scatter', mode = 'markers', x = ~efficiency, y = ~price, size = ~emission, color = ~commodity,
+              colors = viridis_pal(option = "D")(10),
+              marker = list(sizeref=0.1, line = list(width = 0.5, color = '#FFFFFF')), hoverinfo = 'text',
+              text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
+                          '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>')) %>%
+      layout(showlegend=FALSE)
+
+  })
+  
   
 }
 
 # run app
 shinyApp(ui, server)
 
-
+# https://stackoverflow.com/questions/37472915/r-shiny-how-to-generate-this-layout-with-nested-rows-in-column-2
