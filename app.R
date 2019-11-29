@@ -20,9 +20,9 @@ require(plotly)
 require(tools)
 
 # set working directory
-# setwd("~/Documents/Projects/Energy/")
-# setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/Energy")
-setwd("C:/Users/lab/Documents/GitHub/Energy")
+# setwd("~/Documents/Projects/KnownSideEffects/")
+# setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
+setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
 
 # create provincial data
 source("create_data.R")
@@ -86,17 +86,20 @@ ui <- dashboardPage(
       ),
     
     fluidRow(
-      box(status = "primary",leafletOutput("plot", height= '600px'),width="100%")),
+      box(status = "info",leafletOutput("plot", height= '600px'),width="100%")),
     fluidRow(box(column(6,selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
                              choices = areas, selected='Ontario')),
+                 
              column(3,selectInput("commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
                                    choices = setNames(commodities,commodity_labels), selected = 'wood')),
+             
              column(3,selectInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">with'),
                              choices = setNames(commodities,commodity_labels), selected = 'wood')), width = 12)),
+    
     fluidRow(
       
-      box(title = "bubblebubble",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bubble"),width= 6),
-      box(title = "bitchtits",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bitchtits"),width= 6)
+      box(title = "Input, output, price",status = "primary",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bubble"),width= 6),
+      box(title = "Efficiency, emissions, price",status = "primary",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bubble_2"),width= 6)
       
       ),
     
@@ -259,7 +262,7 @@ server <- function(input, output) {
     
   })
   
-  output$bitchtits <- renderPlotly({
+  output$bubble_2 <- renderPlotly({
 
     efficiency_selected() %>%
       plot_ly(type = 'scatter', mode = 'markers', x = ~efficiency, y = ~price, size = ~emission, color = ~commodity,
