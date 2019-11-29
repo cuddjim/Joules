@@ -20,8 +20,8 @@ require(plotly)
 require(tools)
 
 # set working directory
-# setwd("~/Documents/Projects/KnownSideEffects/")
-setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
+setwd("~/Documents/Projects/KnownSideEffects/")
+# setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
 # setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
 
 # create provincial data
@@ -33,17 +33,6 @@ areas = prov_map@data$NAME
 indicators = c("input","output","price",'emission')
 commodities = c("wood","light_fuel_oil","heavy_fuel_oil","diesel","total_coal",
                 "natural_gas","uranium","methane","propane")
-
-# create input lists
-list_of_areas = lapply(paste0("<p style='color:black;font-family:Verdana,Geneva,sans-serif;font-weight:bold;font-size: 14px'>",
-                                   areas,"</p>"),HTML)
-
-list_of_indicators = lapply(paste0("<p style='color:black;font-family:Verdana,Geneva,sans-serif;font-weight:bold;font-size: 14px'>",
-                                   indicators,"</p>"),HTML)
-
-list_of_commodities = lapply(paste0("<p style='color:black;font-family:Verdana,Geneva,sans-serif;font-weight:bold;font-size: 14px'>",
-                                    toTitleCase(gsub('_', ' ', commodities)),"</p>"),HTML)
-
 commodity_labels = toTitleCase(gsub('_', ' ', commodities))
 # create user interface
 ui <- dashboardPage(
@@ -86,27 +75,25 @@ ui <- dashboardPage(
       ),
     
     fluidRow(
-      box(status = "info",leafletOutput("plot", height= '600px'),width="100%")),
-    fluidRow(box(column(6,selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
-                             choices = areas, selected='Ontario')),
-                 
-             column(3,selectInput("commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
-                                   choices = setNames(commodities,commodity_labels), selected = 'wood')),
-             
-             column(3,selectInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">with'),
-                             choices = setNames(commodities,commodity_labels), selected = 'wood')), width = 12)),
-    
-    fluidRow(
       
-      box(title = "Input, output, price",status = "primary",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bubble"),width= 6),
-      box(title = "Efficiency, emissions, price",status = "primary",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bubble_2"),width= 6)
+      box(status = "info",leafletOutput("plot", height= '600px'),width="100%")
       
       ),
     
     fluidRow(
       
-      column(title = "InputOutput",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("linegraph"),width = 6),
-      column(title = "InputOutput",status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("linegraph2"),width = 6)
+      box(
+        
+        column(6,selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
+                               choices = areas, selected='Ontario')),
+        column(3,selectInput("commodity1", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
+                               choices = setNames(commodities,commodity_labels), selected = 'wood')),
+        column(3,selectInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">with'),
+                               choices = setNames(commodities,commodity_labels), selected = 'wood')),
+        column(status = "primary",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bubble"),width= 6),
+        column(status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("linegraph"),width = 6),
+        column(status = "primary",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("bubble_2"),width= 6),
+        column(status = "info",solidHeader = TRUE,collapsible = TRUE,plotlyOutput("linegraph2"),width = 6),width=12)
       
     )
       
@@ -140,10 +127,10 @@ server <- function(input, output) {
     
     min_year = min(input$year)
     max_year = max(input$year)
-    min_emissions = str_c(input$commodity,'_emission_',min_year)
-    max_emissions = str_c(input$commodity,'_emission_',max_year)
-    min_outputs = str_c(input$commodity,'_output_',min_year)
-    max_outputs = str_c(input$commodity,'_output_',max_year)
+    min_emissions = str_c(input$commodity1,'_emission_',min_year)
+    max_emissions = str_c(input$commodity1,'_emission_',max_year)
+    min_outputs = str_c(input$commodity1,'_output_',min_year)
+    max_outputs = str_c(input$commodity1,'_output_',max_year)
     
     prov_map@data %<>% 
       mutate(emissions=round(rowMeans(select(.,min_emissions:max_emissions),na.rm=TRUE),0),
@@ -156,7 +143,7 @@ server <- function(input, output) {
   observe({
     
     prov_popup <- paste0('<strong>',selected_com_ind()$NAME,', ',
-                         input$commodity,"</strong> <br>",
+                         input$commodity1,"</strong> <br>",
                          '<strong>Emissions: </strong>',selected_com_ind()$emissions, " tonnes",
                          '<br><strong>Outputs: </strong>',selected_com_ind()$outputs, " MWh")
     
@@ -208,7 +195,7 @@ server <- function(input, output) {
   linegraph_reactive <- reactive({
     
     selected_province = input$province
-    selected_commodity = input$commodity
+    selected_commodity = input$commodity1
     min_year = min(input$year)
     max_year = max(input$year)
     
