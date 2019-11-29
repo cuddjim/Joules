@@ -21,8 +21,8 @@ require(tools)
 
 # set working directory
 # setwd("~/Documents/Projects/KnownSideEffects/")
-# setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
-setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
+setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
+# setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
 
 # create provincial data
 source("create_data.R")
@@ -81,7 +81,7 @@ ui <- dashboardPage(
     fluidRow(
       
       box(sliderInput("year",h6(''), 2005, 2018, value=c(2005,2018),sep = ""),width = 3),
-      actionButton("instructions","Display instructions"),
+      actionButton("instructions","Display user guide"),
       textOutput("show")
       ),
     
@@ -160,6 +160,9 @@ server <- function(input, output) {
                          '<strong>Emissions: </strong>',selected_com_ind()$emissions, " tonnes",
                          '<br><strong>Outputs: </strong>',selected_com_ind()$outputs, " MWh")
     
+    color_pal <- colorNumeric(palette = "RdYlBu", 
+                              domain = selected_com_ind()$emissions, reverse = TRUE)
+    
     leafletProxy("plot") %>%
       clearShapes() %>%
       clearControls() %>%
@@ -172,7 +175,8 @@ server <- function(input, output) {
                  fillOpacity = 0.6,
                  color = 'blue',
                  popup = prov_popup,
-                 weight = ~outputs/10000)
+                 weight = ~outputs/10000) %>% 
+      addLegend("bottomright", pal = color_pal, values = subject_matter_2$emission)
     
   })
   
@@ -197,7 +201,7 @@ server <- function(input, output) {
                           '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>',
                           '<b>Input: </b>',format(input,big.mark=",",scientific=FALSE),'Tonsslashkilolitres','<br>',
                           '<b>Output: </b>',format(output,big.mark=",",scientific=FALSE),'MgHours')) %>%
-      layout(showlegend=FALSE)
+      layout(showlegend=TRUE)
     
   })
   
@@ -270,7 +274,7 @@ server <- function(input, output) {
               marker = list(sizeref=0.1, line = list(width = 0.5, color = '#FFFFFF')), hoverinfo = 'text',
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>')) %>%
-      layout(showlegend=FALSE)
+      layout(showlegend=TRUE)
 
   })
   
@@ -281,3 +285,6 @@ server <- function(input, output) {
 shinyApp(ui, server)
 
 # https://stackoverflow.com/questions/37472915/r-shiny-how-to-generate-this-layout-with-nested-rows-in-column-2
+
+# change prov color scale
+#indicate circle meaning map - legend
