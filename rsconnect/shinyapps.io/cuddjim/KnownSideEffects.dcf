@@ -1,0 +1,13 @@
+name: KnownSideEffects
+title: KnownSideEffects
+username:
+account: cuddjim
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1540249
+bundleId: 2626917
+url: https://cuddjim.shinyapps.io/KnownSideEffects/
+when: 1575050479.5388
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|Conversion factors.xlsx|convert_units.R|JCapp.R

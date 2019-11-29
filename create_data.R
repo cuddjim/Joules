@@ -1,5 +1,6 @@
 
 convert_inputs_to_emissions = data.frame(
+  
   commodity = c("wood","light_fuel_oil","heavy_fuel_oil","diesel","total_coal",
                   "natural_gas","uranium","methane","propane"),
   conversion_factor = c(423,2626,3145,2679,2430,1927,40,1900,1540)
