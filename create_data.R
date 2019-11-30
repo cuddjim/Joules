@@ -7,6 +7,16 @@ convert_inputs_to_emissions = data.frame(
   
 )
 
+convert_inputs_to_tj = data.frame(
+  
+  # commodity = c("Wood","Light fuel oil","Total heavy fuel oil","Diesel","Total coal",
+  #               "Natural gas","Uranium","Methane","Propane"),
+  commodity = c("wood","light_fuel_oil","heavy_fuel_oil","diesel","total_coal",
+                "natural_gas","uranium","methane","propane"),
+  conversion_factor_tj = c(0.018,0.0388,0.0425,0.0383,0.0264,0.383,0.28,0.0399,0.02531)
+  
+)
+
 subject_matter_3 <- list.files(pattern = "*LoadingData.csv") %>% 
   lapply(read_csv) %>% 
   bind_rows %>%
@@ -17,13 +27,15 @@ subject_matter_3 <- list.files(pattern = "*LoadingData.csv") %>%
          commodity=case_when(!is.na(Fuel_consumed_for_electric_power_generation) ~ Fuel_consumed_for_electric_power_generation,
                              !is.na(Cost_of_fuel_for_electric_power_generation) ~ Cost_of_fuel_for_electric_power_generation,
                              !is.na(Electricity_generated_from_fuels) ~ Electricity_generated_from_fuels)) %>%
-  select(REF_DATE,GEO,VALUE,indicator,commodity) %>%
+  select(REF_DATE,GEO,VALUE,indicator,commodity) %>% 
   set_colnames(c('year','province','value','indicator','commodity')) %>%
   filter(!(commodity %in% c('Total petroleum products'))) %>%
   mutate(commodity=ifelse(commodity=='Total heavy fuel oil','heavy fuel oil',commodity),
          commodity=tolower(gsub(' ','_',commodity))) %>%
   left_join(convert_inputs_to_emissions, by='commodity') %>%
-  mutate(emission = value*conversion_factor/1000) %>%
+  mutate(emission = value*conversion_factor/1000) %>% 
+  left_join(convert_inputs_to_tj, by='commodity') %>% 
+  mutate(value = ifelse(indicator=='input',value*conversion_factor_tj,value)) %>% 
   filter(indicator=='input') %>%
   select(-indicator,-conversion_factor,-value) %>%
   mutate(indicator='emission',
@@ -44,8 +56,10 @@ subject_matter_1 <- list.files(pattern = "*LoadingData.csv") %>%
   set_colnames(c('year','province','value','indicator','commodity')) %>%
   filter(!(commodity %in% c('Total petroleum products'))) %>%
   mutate(commodity=ifelse(commodity=='Total heavy fuel oil','heavy fuel oil',commodity),
-         commodity=tolower(gsub(' ','_',commodity)),
-         variable=str_c(commodity,'_',indicator,'_',year)) %>%
+         commodity=tolower(gsub(' ','_',commodity))) %>% 
+  left_join(convert_inputs_to_tj, by='commodity') %>% 
+  mutate(value = ifelse(indicator=='input',value*conversion_factor_tj,value)) %>% 
+  mutate(variable=str_c(commodity,'_',indicator,'_',year)) %>%
   rbind(.,subject_matter_3) %>%
   select(province,variable,value) %>%
   spread(variable,value)
@@ -67,6 +81,8 @@ subject_matter_2 <- list.files(pattern = "*LoadingData.csv") %>%
   filter(commodity != 'Total petroleum products') %>%
   mutate(commodity=ifelse(commodity=='Total heavy fuel oil','heavy fuel oil',commodity),
          commodity=tolower(gsub(' ','_',commodity))) %>%
+  left_join(convert_inputs_to_tj, by='commodity') %>% 
+  mutate(value = ifelse(indicator=='input',value*conversion_factor_tj,value)) %>% 
   rbind(.,subject_matter_3 %>% select(-variable)) %>%
   spread(indicator,value)
 

@@ -85,7 +85,8 @@ ui <- dashboardPage(
     
     fluidRow(
       
-      box(title='Thematic Map of Emissions and Output by Fuel Type', status = "primary", solidHeader = TRUE, collapsible = TRUE, leafletOutput("plot", height= '600px'), width="100%")
+      box(title='Thematic Map of Emissions and Output by Fuel Type', status = "primary", solidHeader = TRUE, 
+          collapsible = TRUE, leafletOutput("plot", height= '600px'), width="100%")
       
       ),
     
@@ -195,7 +196,7 @@ server <- function(input, output) {
               marker = list(sizeref=0.1, line = list(width = 0.5, color = '#FFFFFF')), hoverinfo = 'text', 
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>',
-                          '<b>Input: </b>',format(input,big.mark=",",scientific=FALSE),'t/kL/m^3','<br>',
+                          '<b>Input: </b>',format(input,big.mark=",",scientific=FALSE),'TJ','<br>',
                           '<b>Output: </b>',format(output,big.mark=",",scientific=FALSE),'MWh')) %>%
       layout(title = paste0('Comparing ',input$province,' Energy Types'),
              showlegend=TRUE)
@@ -238,11 +239,11 @@ server <- function(input, output) {
       add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'lines', name= input$commodity2,
                 line = list(color = '#FF0000',dash='dot'), opacity = 0.6,
                 hoverinfo = "text",
-                text = ~paste(input,' t')) %>%
+                text = ~paste(input,' TJ')) %>%
       layout(title = paste0('Comparing Inputs of ',input$commodity1,' to ',input$commodity2),
              xaxis = list(title = ""),
              yaxis = list(range=c(~min(c(linegraph_reactive()$input,linegraph_reactive2()$input)),~max(c(linegraph_reactive()$input,linegraph_reactive2()$input))),
-                          side = 'left', title = 'Input (t)', showgrid = FALSE, zeroline = FALSE))
+                          side = 'left', title = 'Input (TJ)', showgrid = FALSE, zeroline = FALSE))
 
     b = plot_ly() %>%
       add_trace(data=linegraph_reactive(),x= ~year, y = ~output, type = 'scatter', mode = 'lines', name = input$commodity1,
@@ -256,7 +257,7 @@ server <- function(input, output) {
       layout(title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
              xaxis = list(title = ""),
              yaxis = list(range=c(~min(c(linegraph_reactive()$output,linegraph_reactive2()$output)),~max(c(linegraph_reactive()$output,linegraph_reactive2()$output))),
-                          side = 'left', title = 'Output (t)', showgrid = FALSE, zeroline = FALSE))
+                          side = 'left', title = 'Output (MWh)', showgrid = FALSE, zeroline = FALSE))
     
     subplot(a,b,nrows=2,titleY=TRUE,margin=0.075)
     
@@ -268,11 +269,11 @@ server <- function(input, output) {
       add_trace(data = linegraph_reactive(), x= ~year, y= ~price,type = 'scatter', mode = 'lines', name= 'Price',
                 line = list(color = '#55579A'), opacity = 0.6,
                 hoverinfo = "text",
-                text = ~paste(price,' t')) %>%
+                text = ~paste(price,' $')) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y= ~price,type = 'scatter', mode = 'lines', name= 'Price To',
                 line = list(color = '#FF0000', dash = 'dot'), opacity = 0.6,
                 hoverinfo = "text",
-                text = ~paste(input,' t')) %>%
+                text = ~paste(price,' $')) %>%
       layout(showLegend=FALSE,
              title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
              xaxis = list(title = ""),
@@ -283,15 +284,15 @@ server <- function(input, output) {
       add_trace(data=linegraph_reactive(), x= ~year, y = ~efficiency, type = 'scatter', mode = 'lines', name = 'Efficiency',
                 line = list(color = '#55579A'), opacity = 0.6,
                 hoverinfo = "text",
-                text = ~paste(efficiency,'MWh')) %>%
+                text = ~paste(efficiency,'MWh/TJ')) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y = ~efficiency, type = 'scatter', mode = 'lines', name = 'Efficiency To',
                 line = list(color = '#FF0000', dash = 'dot'), opacity = 0.6,
                 hoverinfo = "text",
-                text = ~paste(output,'MWh')) %>%
+                text = ~paste(efficiency,'MWh/TJ')) %>%
       layout(title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
              xaxis = list(title = ""),
              yaxis = list(range=c(~min(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency)),~max(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency))),
-                          side = 'left', title = 'Efficiency (MWh/t)', showgrid = FALSE, zeroline = FALSE))
+                          side = 'left', title = 'Efficiency (MWh/TJ)', showgrid = FALSE, zeroline = FALSE))
     
     subplot(a,b,nrows=2,titleY=TRUE,margin=0.075)
     
@@ -314,7 +315,7 @@ server <- function(input, output) {
   output$bubble_2 <- renderPlotly({
 
     efficiency_selected() %>%
-      plot_ly(type = 'scatter', mode = 'markers', x = ~efficiency, y = ~price, size = ~emission, color = ~commodity,
+      plot_ly(type = 'scatter', mode = 'markers', x = ~efficiency, y = ~emission, size = ~price, color = ~commodity,
               colors = viridis_pal(option = "D")(10),
               marker = list(sizeref=0.1, line = list(width = 0.5, color = '#FFFFFF')), hoverinfo = 'text',
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
