@@ -128,7 +128,7 @@ server <- function(input, output) {
     leaflet(options = leafletOptions(minZoom = 4, maxZoom = 6,
       attributionControl=FALSE)) %>%
       setView(lng = -100.4, lat = 60, zoom = 4) %>%
-      addProviderTiles(providers$HERE.normalDay,
+      addProviderTiles(providers$Stamen.Watercolor,
                        options = providerTileOptions(opacity = 0.8))
     
   })
@@ -158,14 +158,14 @@ server <- function(input, output) {
                          '<br><strong>Outputs: </strong>',selected_com_ind()$outputs, " MWh")
     
     color_pal <- colorNumeric(palette = "RdYlBu", 
-                              domain = selected_com_ind()$emissions, reverse = FALSE)
+                              domain = selected_com_ind()$emissions, reverse = TRUE)
     x = selected_com_ind()$emissions
     
     leafletProxy("plot") %>%
       clearShapes() %>%
       clearControls() %>%
       addPolygons(data = selected_com_ind(),
-                  fillColor = ~colorBin("RdYlBu", emissions, 5, reverse = FALSE)(emissions),
+                  fillColor = ~colorBin("RdYlBu", emissions, 5, reverse = TRUE)(emissions),
                   color = "#BDBDC3",
                   fillOpacity = 0.5,
                   weight = 1) %>%
@@ -175,7 +175,7 @@ server <- function(input, output) {
                  popup = prov_popup,
                  weight = ~outputs/10000) %>% 
       addLegend("bottomright", pal = color_pal, values = x, 
-                labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
+                labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE)))
     
   })
   
