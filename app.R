@@ -158,13 +158,14 @@ server <- function(input, output) {
                          '<br><strong>Outputs: </strong>',selected_com_ind()$outputs, " MWh")
     
     color_pal <- colorNumeric(palette = "RdYlBu", 
-                              domain = selected_com_ind()$emissions, reverse = TRUE)
+                              domain = selected_com_ind()$emissions, reverse = FALSE)
+    x = selected_com_ind()$emissions
     
     leafletProxy("plot") %>%
       clearShapes() %>%
       clearControls() %>%
       addPolygons(data = selected_com_ind(),
-                  fillColor = ~colorBin("RdYlBu", emissions, 5, reverse = TRUE)(emissions),
+                  fillColor = ~colorBin("RdYlBu", emissions, 5, reverse = FALSE)(emissions),
                   color = "#BDBDC3",
                   fillOpacity = 0.5,
                   weight = 1) %>%
@@ -173,7 +174,8 @@ server <- function(input, output) {
                  color = 'blue',
                  popup = prov_popup,
                  weight = ~outputs/10000) %>% 
-      addLegend("bottomright", pal = color_pal, values = selected_com_ind()$emissions)
+      addLegend("bottomright", pal = color_pal, values = x, 
+                labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
     
   })
   
