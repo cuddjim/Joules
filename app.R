@@ -38,48 +38,48 @@ commodity_labels = toTitleCase(gsub('_', ' ', commodities))
 # create user interface
 ui <- dashboardPage(
   
-  dashboardHeader(title = div(icon("fighter-jet"),icon("seedling"),icon("charging-station"))),
+  dashboardHeader(title = "Thermal Emissions Visualizations", titleWidth = '100%'),
   
   dashboardSidebar(disable = TRUE),
   
   dashboardBody(
     
-    tags$head(tags$style(HTML('
-
-        /* logo */
-        .skin-blue .main-header .logo {
-                              background-color: #55579A;
-                              }
-
-        /* logo when hovered */
-        .skin-blue .main-header .logo:hover {
-                              background-color: #55579A;
-                              }
-
-        /* navbar (rest of the header) */
-        .skin-blue .main-header .navbar {
-                              background-color: #55579A;
-                              }
-
-        /* main sidebar */
-        .skin-blue .main-sidebar {
-                              background-color: #FFFFFF;
-                              color: black;
-        }
-
-        /* body */
-        .content-wrapper, .right-side {
-                              background-color: #FFFFFF;
-                    
-        }
-
-                              '))),
+    # tags$head(tags$style(HTML('
+    # 
+    #     /* logo */
+    #     .skin-blue .main-header .logo {
+    #                           background-color: #55579A;
+    #                           }
+    # 
+    #     /* logo when hovered */
+    #     .skin-blue .main-header .logo:hover {
+    #                           background-color: #55579A;
+    #                           }
+    # 
+    #     /* navbar (rest of the header) */
+    #     .skin-blue .main-header .navbar {
+    #                           background-color: #55579A;
+    #                           }
+    # 
+    #     /* main sidebar */
+    #     .skin-blue .main-sidebar {
+    #                           background-color: #FFFFFF;
+    #                           color: black;
+    #     }
+    # 
+    #     /* body */
+    #     .content-wrapper, .right-side {
+    #                           background-color: #FFFFFF;
+    #                 
+    #     }
+    # 
+    #                           '))),
     fluidRow(
       
-      box(column(5,selectInput("map_commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Select Map Fuel Type and years'),
-                               choices = setNames(commodities,commodity_labels), selected = 'heavy_fuel_oil')),
+      box(column(5,selectInput("map_commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Select Map Fuel Type and Years'),
+                               choices = setNames(commodities,commodity_labels), selected = 'diesel')),
           column(6,sliderInput("year", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),
-      column(1,actionButton("instructions","Display user guide")), width=12)
+      column(1,actionButton("instructions","Display user guide")), width='100%')
       
       ),
     
@@ -130,8 +130,8 @@ server <- function(input, output) {
     
     leaflet(options = leafletOptions(minZoom = 4, maxZoom = 6,
       attributionControl=FALSE)) %>%
-      setView(lng = -100.4, lat = 60, zoom = 4) %>%
-      addProviderTiles(providers$Stamen.Watercolor,
+      setView(lng = -105.4, lat = 58.7, zoom = 4) %>%
+      addProviderTiles(providers$Esri.WorldImagery,
                        options = providerTileOptions(opacity = 0.8))
     
   })
@@ -147,7 +147,8 @@ server <- function(input, output) {
     
     prov_map@data %<>% 
       mutate(emissions=round(rowMeans(select(.,min_emissions:max_emissions),na.rm=TRUE),0),
-             outputs=round(rowMeans(select(.,min_outputs:max_outputs),na.rm=TRUE),0))
+             outputs=round(rowMeans(select(.,min_outputs:max_outputs),na.rm=TRUE),0)) %>% 
+      mutate(scaled_outputs = scale(outputs))
     
     prov_map
     
@@ -162,7 +163,7 @@ server <- function(input, output) {
     
     color_pal <- colorNumeric(palette = "RdYlBu", 
                               domain = selected_com_ind()$emissions, reverse = TRUE)
-    x = selected_com_ind()$emissions
+    huey = selected_com_ind()$emissions
     
     leafletProxy("plot") %>%
       clearShapes() %>%
@@ -170,15 +171,16 @@ server <- function(input, output) {
       addPolygons(data = selected_com_ind(),
                   fillColor = ~colorBin("RdYlBu", emissions, 5, reverse = TRUE)(emissions),
                   color = "#BDBDC3",
-                  fillOpacity = 0.5,
+                  fillOpacity = 0.7,
                   weight = 1) %>%
       addCircles(data=selected_com_ind(), lng = ~x, lat = ~y,
-                 fillOpacity = 0.6,
-                 color = 'blue',
+                 fillOpacity = 1,
+                 color = 'black',
                  popup = prov_popup,
-                 weight = ~outputs/10000) %>% 
-      addLegend("bottomright", pal = color_pal, values = x, 
-                labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE)))
+                 weight = ~scaled_outputs*23) %>% 
+      addLegend(opacity = 0.7, title = "CO2e Emissions (tonnes)","bottomleft", pal = colorBin(palette = "RdYlBu", 
+                                                  domain = selected_com_ind()$emissions, reverse = FALSE), values = huey, 
+                labFormat = labelFormat(transform = function(huey) sort(huey, decreasing = TRUE)))
     
   })
   
@@ -237,12 +239,12 @@ server <- function(input, output) {
   output$linegraph_input <- renderPlotly({
     
     a = plot_ly() %>%
-      add_trace(data=linegraph_reactive(),x= ~year, y= ~input,type = 'scatter', mode = 'lines', name= input$commodity1,
+      add_trace(data=linegraph_reactive(),x= ~year, y= ~input,type = 'scatter', mode = 'none', name= input$commodity1, fill = 'tozeroy',
                 line = list(color = '#55579A'), opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ')) %>%
-      add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'lines', name= input$commodity2,
-                line = list(color = '#FF0000',dash='dot'), opacity = 0.6,
+      add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'none', name= input$commodity2, fill = 'tozeroy',
+                line = list(color = '#FF0000'), opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ')) %>%
       layout(title = paste0('Comparing Inputs of ',input$commodity1,' to ',input$commodity2),
@@ -251,12 +253,12 @@ server <- function(input, output) {
                           side = 'left', title = 'Input (TJ)', showgrid = FALSE, zeroline = FALSE))
 
     b = plot_ly() %>%
-      add_trace(data=linegraph_reactive(),x= ~year, y = ~output, type = 'scatter', mode = 'lines', name = input$commodity1,
+      add_trace(data=linegraph_reactive(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name = input$commodity1, fill = 'tozeroy',
                 line = list(color = '#55579A'), opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(output,0),big.mark = ",",scientific = FALSE),'MWh')) %>%
-      add_trace(data=linegraph_reactive2(),x= ~year, y = ~output, type = 'scatter', mode = 'lines', name = input$commodity2,
-                line = list(color = '#FF0000',dash='dot'), opacity = 0.6,
+      add_trace(data=linegraph_reactive2(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name = input$commodity2, fill = 'tozeroy',
+                line = list(color = '#FF0000'), opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(output,0),big.mark = ",",scientific = FALSE),'MWh')) %>%
       layout(title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
@@ -271,15 +273,15 @@ server <- function(input, output) {
   output$linegraph2 <- renderPlotly({
     
     a = plot_ly() %>%
-      add_trace(data = linegraph_reactive(), x= ~year, y= ~price,type = 'scatter', mode = 'none', name= input$commodity1, fill = 'tozeroy',
-                # line = list(color = '#55579A'),
+      add_trace(data = linegraph_reactive(), x= ~year, y= ~price,type = 'scatter', mode = 'none', 
+                name= input$commodity1, fill = 'tozeroy',
+                line = list(color = '#55579A'),
                 opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
-      add_trace(data=linegraph_reactive2(),x= ~year, y= ~price,type = 'scatter', mode = 'none', name= input$commodity2, fill = 'tozeroy',
-                # line = list(color = '#FF0000'
-                #             , dash = 'dot'
-                #             ),
+      add_trace(data=linegraph_reactive2(),x= ~year, y= ~price,type = 'scatter', mode = 'none', 
+                name= input$commodity2, fill = 'tozeroy',
+                line = list(color = '#FF0000'),
                 opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
@@ -291,13 +293,13 @@ server <- function(input, output) {
     
     b = plot_ly() %>%
       add_trace(data=linegraph_reactive(), x= ~year, y = ~efficiency, type = 'scatter', mode = 'none', name = input$commodity1,fill = 'tozeroy',
-                line = list(color = '#55579A'), opacity = 0.6,
+                line = list(color = '#55579A'),
+                opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y = ~efficiency, type = 'scatter', mode = 'none', name = input$commodity2,fill = 'tozeroy',
-                line = list(color = '#FF0000'
-                            # , dash = 'dot'
-                            ), opacity = 0.6,
+                line = list(color = '#FF0000'),
+                opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
       layout(title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
