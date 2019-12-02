@@ -198,7 +198,7 @@ server <- function(input, output) {
     efficiency_selected() %>%
       plot_ly(type = 'scatter', mode = 'markers', x = ~input, y = ~output, size = ~price, color = ~commodity,
               colors = viridis_pal(option = "D")(10),
-              marker = list(sizeref=0.1, line = list(width = 0.5, color = '#FFFFFF')), hoverinfo = 'text', 
+              marker = list(sizeref=0.1, line = list(width = 1, color = '#FFFFFF')), hoverinfo = 'text', 
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>',
                           '<b>Input: </b>',format(input,big.mark=",",scientific=FALSE),'TJ','<br>',
@@ -322,7 +322,7 @@ server <- function(input, output) {
     efficiency_selected() %>%
       plot_ly(type = 'scatter', mode = 'markers', x = ~efficiency, y = ~emission, size = ~price, color = ~commodity,
               colors = viridis_pal(option = "D")(10),
-              marker = list(sizeref=0.1, line = list(width = 0.5, color = '#FFFFFF')), hoverinfo = 'text',
+              marker = list(sizeref=0.1, line = list(width = 1, color = '#FFFFFF')), hoverinfo = 'text',
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>')) %>%
       layout(title = paste0('Comparing ',input$province,' Energy Types'),
