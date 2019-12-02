@@ -271,12 +271,16 @@ server <- function(input, output) {
   output$linegraph2 <- renderPlotly({
     
     a = plot_ly() %>%
-      add_trace(data = linegraph_reactive(), x= ~year, y= ~price,type = 'scatter', mode = 'lines', name= 'Price',
-                line = list(color = '#55579A'), opacity = 0.6,
+      add_trace(data = linegraph_reactive(), x= ~year, y= ~price,type = 'scatter', mode = 'none', name= input$commodity1, fill = 'tozeroy',
+                # line = list(color = '#55579A'),
+                opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
-      add_trace(data=linegraph_reactive2(),x= ~year, y= ~price,type = 'scatter', mode = 'lines', name= 'Price To',
-                line = list(color = '#FF0000', dash = 'dot'), opacity = 0.6,
+      add_trace(data=linegraph_reactive2(),x= ~year, y= ~price,type = 'scatter', mode = 'none', name= input$commodity2, fill = 'tozeroy',
+                # line = list(color = '#FF0000'
+                #             , dash = 'dot'
+                #             ),
+                opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
       layout(showLegend=FALSE,
@@ -286,12 +290,14 @@ server <- function(input, output) {
                           side = 'left', title = 'Price (thousands $)', showgrid = FALSE, zeroline = FALSE))
     
     b = plot_ly() %>%
-      add_trace(data=linegraph_reactive(), x= ~year, y = ~efficiency, type = 'scatter', mode = 'lines', name = 'Efficiency',
+      add_trace(data=linegraph_reactive(), x= ~year, y = ~efficiency, type = 'scatter', mode = 'none', name = input$commodity1,fill = 'tozeroy',
                 line = list(color = '#55579A'), opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
-      add_trace(data=linegraph_reactive2(),x= ~year, y = ~efficiency, type = 'scatter', mode = 'lines', name = 'Efficiency To',
-                line = list(color = '#FF0000', dash = 'dot'), opacity = 0.6,
+      add_trace(data=linegraph_reactive2(),x= ~year, y = ~efficiency, type = 'scatter', mode = 'none', name = input$commodity2,fill = 'tozeroy',
+                line = list(color = '#FF0000'
+                            # , dash = 'dot'
+                            ), opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
       layout(title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
