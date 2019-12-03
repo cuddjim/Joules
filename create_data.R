@@ -103,4 +103,3 @@ prov_map %<>%
   left_join(subject_matter_1, by=c('NAME'='province')) %>%
   left_join(prov_centroids, by=c('NAME'))
 
-

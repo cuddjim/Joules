@@ -18,7 +18,7 @@ require(geosphere)
 require(viridis)
 require(plotly)
 require(tools)
-
+require(formattable)
 # set working directory
 # setwd("~/Documents/Projects/KnownSideEffects/")
 # setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
@@ -43,54 +43,56 @@ ui <- dashboardPage(
   dashboardSidebar(disable = TRUE),
   
   dashboardBody(
-    
-    # tags$head(tags$style(HTML('
-    # 
-    #     /* logo */
-    #     .skin-blue .main-header .logo {
-    #                           background-color: #55579A;
-    #                           }
-    # 
-    #     /* logo when hovered */
-    #     .skin-blue .main-header .logo:hover {
-    #                           background-color: #55579A;
-    #                           }
-    # 
-    #     /* navbar (rest of the header) */
-    #     .skin-blue .main-header .navbar {
-    #                           background-color: #55579A;
-    #                           }
-    # 
-    #     /* main sidebar */
-    #     .skin-blue .main-sidebar {
-    #                           background-color: #FFFFFF;
-    #                           color: black;
-    #     }
-    # 
-    #     /* body */
-    #     .content-wrapper, .right-side {
-    #                           background-color: #FFFFFF;
-    #                 
-    #     }
-    # 
-    #                           '))),
+
+    tags$head(tags$style(HTML('
+
+        /* logo */
+        .skin-blue .main-header .logo {
+                              background-color: #55579A;
+                              }
+
+        /* logo when hovered */
+        .skin-blue .main-header .logo:hover {
+                              background-color: #55579A;
+                              }
+
+        /* navbar (rest of the header) */
+        .skin-blue .main-header .navbar {
+                              background-color: #55579A;
+                              }
+
+        /* main sidebar */
+        .skin-blue .main-sidebar {
+                              background-color: #FFFFFF;
+                              color: black;
+        }
+
+        /* body */
+        .content-wrapper, .right-side {
+                              background-color: #FFFFFF;
+
+        }
+
+                              '))),
     fluidRow(
-      
-      box(column(5,selectInput("map_commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Select Map Fuel Type and Years'),
-                               choices = setNames(commodities,commodity_labels), selected = 'diesel')),
-          column(6,sliderInput("year", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),
-      column(1,actionButton("instructions","Display user guide")), width='100%')
-      
-      ),
+     
+     
+      helpText("These instructions are about the map, and I guess the whole thing in general")),
+    
     
     fluidRow(
-      
+    
       box(title='Thematic Map of Emissions and Output by Fuel Type', status = "primary", solidHeader = TRUE, 
-          collapsible = TRUE, leafletOutput("plot", height= '600px'), width="100%")
+          collapsible = TRUE, column(6,selectInput("map_commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Select Map Fuel Type and Years'),
+                                                   choices = setNames(commodities,commodity_labels), selected = 'diesel')),
+          column(6,sliderInput("year", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),leafletOutput("plot", height= '600px'),width = '100%'
+          )
       
       ),
     
-    fluidRow(helpText("The graphs below compare fuel types per province selected. The bubble charts show all fuel types per province, while the line graphs show the fuels selected in the Compare and To drop down menus:")),
+    fluidRow(helpText("The graphs below compare fuel types per province selected. 
+                      The bubble charts show all fuel types per province, 
+                      while the line graphs show the fuels selected in the Compare and To drop down menus:")),
     
     fluidRow(
       
@@ -106,9 +108,18 @@ ui <- dashboardPage(
         column(plotlyOutput("bubble"),width= 6),
         column(plotlyOutput("linegraph_input"),width = 6),
         column(plotlyOutput("bubble_2"),width= 6),
-        column(plotlyOutput("linegraph2"),width = 6),width=12)
+        column(plotlyOutput("linegraph2"),width = 6),width='100%')
       
-    )
+    ),
+    fluidRow(helpText("The graphs below compare fuel types per province selected. 
+                      The bubble charts show all fuel types per province, 
+                      while the line graphs show the fuels selected in the Compare and To drop down menus:")),
+    fluidRow(box(title = "Data table for now", status = "primary", solidHeader = TRUE, 
+                 collapsible = TRUE,column(12,selectInput("variable", 
+                                                         label = HTML('<FONT color="#55579A"><FONT size="4pt">Select variable to display:'),
+                                                         choices = indicators, selected='input')), 
+                 formattableOutput('prov_comp',width=12),width = '100%')
+             )
       
     ))
 
@@ -275,13 +286,13 @@ server <- function(input, output) {
     a = plot_ly() %>%
       add_trace(data = linegraph_reactive(), x= ~year, y= ~price,type = 'scatter', mode = 'none', 
                 name= input$commodity1, fill = 'tozeroy',
-                line = list(color = '#55579A'),
+                line = list(color = '#55579A', opacity = 0.5),
                 opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y= ~price,type = 'scatter', mode = 'none', 
                 name= input$commodity2, fill = 'tozeroy',
-                line = list(color = '#FF0000'),
+                line = list(color = '#FF0000', opacity = 0.5),
                 opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
@@ -293,12 +304,12 @@ server <- function(input, output) {
     
     b = plot_ly() %>%
       add_trace(data=linegraph_reactive(), x= ~year, y = ~efficiency, type = 'scatter', mode = 'none', name = input$commodity1,fill = 'tozeroy',
-                line = list(color = '#55579A'),
+                line = list(color = '#55579A', opacity = 0.5),
                 opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y = ~efficiency, type = 'scatter', mode = 'none', name = input$commodity2,fill = 'tozeroy',
-                line = list(color = '#FF0000'),
+                line = list(color = '#FF0000', opacity = 0.5),
                 opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
@@ -337,6 +348,32 @@ server <- function(input, output) {
              showlegend=TRUE)
 
   })
+  
+  table_reactive <- reactive({
+    
+    min_year = min(input$year)
+    max_year = max(input$year)
+    selected_indicator = input$variable
+    
+    subject_matter_2 %>%
+      filter(year %in% min_year:max_year) %>%
+      select(province,commodity,noquote(paste0(selected_indicator))) %>%
+      rename(indicator=noquote(paste0(selected_indicator))) %>%
+      group_by(province,commodity) %>%
+      summarize(mean_value=mean(indicator,na.rm=TRUE)) %>%
+      mutate(mean_value=replace_na(mean_value,0)) %>%
+      spread(commodity,mean_value)
+    
+    
+  })
+  
+  output$prov_comp <- renderFormattable({
+    
+    formattable(table_reactive(),
+                list('NAME' = formatter("span", style = ~ style(color = "grey", font.weight = "bold")),
+                     'diesel' = color_tile("white", "orange")))
+                     
+                     })
   
   
 }
