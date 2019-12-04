@@ -19,6 +19,7 @@ require(viridis)
 require(plotly)
 require(tools)
 require(formattable)
+require(DT)
 # set working directory
 # setwd("~/Documents/Projects/KnownSideEffects/")
 # setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
@@ -118,7 +119,7 @@ ui <- dashboardPage(
                  collapsible = TRUE,column(12,selectInput("variable", 
                                                          label = HTML('<FONT color="#55579A"><FONT size="4pt">Select variable to display:'),
                                                          choices = indicators, selected='input')), 
-                 formattableOutput('prov_comp',width=12),width = '100%')
+                 dataTableOutput('prov_comp'),width = '100%')
              )
       
     ))
@@ -360,18 +361,54 @@ server <- function(input, output) {
       select(province,commodity,noquote(paste0(selected_indicator))) %>%
       rename(indicator=noquote(paste0(selected_indicator))) %>%
       group_by(province,commodity) %>%
-      summarize(mean_value=mean(indicator,na.rm=TRUE)) %>%
-      mutate(mean_value=replace_na(mean_value,0)) %>%
-      spread(commodity,mean_value)
-    
+      summarize(mean_value=comma(round(mean(indicator,na.rm=TRUE),0),format='d')) %>%
+      spread(commodity,mean_value) %>%
+      replace(is.na(.), 0) %>%
+      arrange(-diesel)
     
   })
   
-  output$prov_comp <- renderFormattable({
+  output$prov_comp <- renderDataTable({
     
-    formattable(table_reactive(),
-                list('NAME' = formatter("span", style = ~ style(color = "grey", font.weight = "bold")),
-                     'diesel' = color_tile("white", "orange")))
+    custom_color_tile <- function (...) 
+      
+    {
+      
+      formatter("span",
+                style = function(x) style(display = "block", 
+                                          padding = "0 4px", 
+                                          `color` = "black", 
+                                          `border-radius` = "4px", 
+                                          width = "80px",
+                                          `background-color` = csscolor(gradient(as.numeric(x), 
+                                                                                 ...))))
+    }
+    
+    custom_color_tile_2 <- function (...)
+      
+    {
+      
+      formatter("span",
+                style = function(x) style(display = "block", 
+                                          padding = "0 2px", 
+                                          `color` = "black", 
+                                          `border-radius` = "2px", 
+                                          width = "250px"))
+    }
+    
+    as.datatable(formattable(table_reactive(), align = c("l", rep("r", ncol(table_reactive())-1)),
+                list('province' = custom_color_tile_2(),
+                     'diesel' = custom_color_tile('white','#00ff00'),
+                     'heavy_fuel_oil' = custom_color_tile('white','#00ff00'),
+                     'light_fuel_oil' = custom_color_tile('white','#00ff00'),
+                     'wood' = custom_color_tile('white','#00ff00'),
+                     'propane' = custom_color_tile('white','#00ff00'),
+                     'uranium' = custom_color_tile('white','#00ff00'),
+                     'total_coal' = custom_color_tile('white','#00ff00'),
+                     'natural_gas' = custom_color_tile('white','#00ff00'),
+                     'methane' = custom_color_tile('white','#00ff00')
+                     )
+                ), options=list(pageLength=15,dom='t'))
                      
                      })
   
@@ -380,11 +417,6 @@ server <- function(input, output) {
 
 # run app
 shinyApp(ui, server)
-
-
-
-
-
 
 
 

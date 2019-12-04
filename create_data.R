@@ -13,7 +13,7 @@ convert_inputs_to_tj = data.frame(
   #               "Natural gas","Uranium","Methane","Propane"),
   commodity = c("wood","light_fuel_oil","heavy_fuel_oil","diesel","total_coal",
                 "natural_gas","uranium","methane","propane"),
-  conversion_factor_tj = c(0.018,0.0388,0.0425,0.0383,0.0264,0.383,0.28,0.0399,0.02531)
+  conversion_factor_tj = c(0.018,0.0388,0.0425,0.0383,0.0264,0.0383,0.28,0.0399,0.02531)
   
 )
 
