@@ -100,8 +100,10 @@ ui <- dashboardPage(
       box(title='Input(TJ), Output(MWh), emissions(metric tonnes), price($ x 1,000), efficiency ratio', status = "primary", solidHeader = TRUE, 
           collapsible = TRUE,
         
-        column(6,selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
+        column(3,selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
                                choices = areas, selected='Prince Edward Island')),
+        column(3,actionButton("gobutton", label = HTML('<FONT color="#55579A"><FONT size="4pt">Data stories'), width = '100%'),
+               dataTableOutput("storytable")),
         column(3,selectInput("commodity1", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
                                choices = setNames(commodities,commodity_labels), selected = 'heavy_fuel_oil')),
         column(3,selectInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">To'),
@@ -116,7 +118,7 @@ ui <- dashboardPage(
                       The bubble charts show all fuel types per province, 
                       while the line graphs show the fuels selected in the Compare and To drop down menus:")),
     fluidRow(box(title = "Data table for now", status = "primary", solidHeader = TRUE, 
-                 collapsible = TRUE,column(12,selectInput("variable", 
+                 collapsible = TRUE,column(3,selectInput("variable", 
                                                          label = HTML('<FONT color="#55579A"><FONT size="4pt">Select variable to display:'),
                                                          choices = indicators, selected='input')), 
                  dataTableOutput('prov_comp'),width = '100%')
@@ -128,14 +130,17 @@ ui <- dashboardPage(
 # create server
 server <- function(input, output) {
   
-  observeEvent(input$instruction_yes, {
+  data <- eventReactive(input$gobutton,{
+
     
-    output$show <- renderText({
-   
-      paste0("Test set of instructions")
-    })
-    
+    df <- as.datatable(data.frame(a=c("story a","story b"),b=c("desc a","desc b")) %>% formattable(),options=list(dom='t'))
+    df
   })
+  
+  output$storytable <- renderDataTable({
+   data()
+  })
+
   
    
   output$plot <- renderLeaflet({
