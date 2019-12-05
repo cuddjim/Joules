@@ -101,13 +101,13 @@ ui <- dashboardPage(
           collapsible = TRUE,
         
         column(3,selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
-                               choices = areas, selected='Prince Edward Island')),
+                               choices = areas, selected='Ontario')),
         column(3,actionButton("gobutton", label = HTML('<FONT color="#55579A"><FONT size="4pt">Data stories'), width = '100%'),
                dataTableOutput("storytable")),
         column(3,selectInput("commodity1", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
-                               choices = setNames(commodities,commodity_labels), selected = 'heavy_fuel_oil')),
+                               choices = setNames(commodities,commodity_labels), selected = 'wood')),
         column(3,selectInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">To'),
-                               choices = setNames(commodities,commodity_labels), selected = 'light_fuel_oil')),
+                               choices = setNames(commodities,commodity_labels), selected = 'total_coal')),
         column(plotlyOutput("bubble"),width= 6),
         column(plotlyOutput("linegraph_input"),width = 6),
         column(plotlyOutput("bubble_2"),width= 6),
@@ -223,7 +223,9 @@ server <- function(input, output) {
                           '<b>Input: </b>',format(input,big.mark=",",scientific=FALSE),'TJ','<br>',
                           '<b>Output: </b>',format(output,big.mark=",",scientific=FALSE),'MWh')) %>%
       layout(title = paste0('Comparing ',input$province,' Energy Types'),
-             showlegend=TRUE)
+             xaxis = list(zeroline=FALSE),
+             yaxis = list(zeroline=FALSE),
+             legend = list(orientation = 'h',y=-0.3))
     
   })
   
@@ -257,28 +259,33 @@ server <- function(input, output) {
     
     a = plot_ly() %>%
       add_trace(data=linegraph_reactive(),x= ~year, y= ~input,type = 'scatter', mode = 'none', name= input$commodity1, fill = 'tozeroy',
-                line = list(color = '#55579A'), opacity = 0.6,
+                line = list(color = '#2e5cb8'), opacity = 0.6,
                 hoverinfo = "text",
-                text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ')) %>%
+                text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ'),showlegend=FALSE) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'none', name= input$commodity2, fill = 'tozeroy',
                 line = list(color = '#FF0000'), opacity = 0.6,
                 hoverinfo = "text",
-                text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ')) %>%
-      layout(title = paste0('Comparing Inputs of ',input$commodity1,' to ',input$commodity2),
-             xaxis = list(title = ""),
+                text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ'),showlegend=FALSE) %>%
+      add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'markers', name= 'story',
+                opacity = 0.8, marker = list(size=~nchar(story)/5, color='#FF0000'),
+                hoverinfo = "text",
+                text = ~paste(story),showlegend=FALSE) %>%
+      add_text(x=c(2009,2010),y=c(100000,100000),text=c('\U24BE',NA),showlegend = FALSE) %>%
+      layout(legend = list(orientation = 'h'),title = paste0('Comparing Inputs of ',input$commodity1,' to ',input$commodity2),
+             xaxis = list(title = "",showline=FALSE),
              yaxis = list(range=c(~min(c(linegraph_reactive()$input,linegraph_reactive2()$input)),~max(c(linegraph_reactive()$input,linegraph_reactive2()$input))),
-                          side = 'left', title = 'Input (TJ)', showgrid = FALSE, zeroline = FALSE))
+                          side = 'left', title = 'Input (TJ)', showgrid = FALSE, showline = FALSE))
 
     b = plot_ly() %>%
       add_trace(data=linegraph_reactive(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name = input$commodity1, fill = 'tozeroy',
-                line = list(color = '#55579A'), opacity = 0.6,
+                line = list(color = '#2e5cb8'), opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(output,0),big.mark = ",",scientific = FALSE),'MWh')) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name = input$commodity2, fill = 'tozeroy',
                 line = list(color = '#FF0000'), opacity = 0.6,
                 hoverinfo = "text",
                 text = ~paste(format(round(output,0),big.mark = ",",scientific = FALSE),'MWh')) %>%
-      layout(title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
+      layout(legend = list(orientation = 'h'), title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
              xaxis = list(title = ""),
              yaxis = list(range=c(~min(c(linegraph_reactive()$output,linegraph_reactive2()$output)),~max(c(linegraph_reactive()$output,linegraph_reactive2()$output))),
                           side = 'left', title = 'Output (MWh)', showgrid = FALSE, zeroline = FALSE))
@@ -350,8 +357,9 @@ server <- function(input, output) {
               marker = list(sizeref=0.1, line = list(width = 1, color = '#FFFFFF')), hoverinfo = 'text',
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>')) %>%
-      layout(title = paste0('Comparing ',input$province,' Energy Types'),
-             showlegend=TRUE)
+      layout(xaxis = list(zeroline=FALSE),
+             yaxis = list(zeroline=FALSE),
+             showlegend=FALSE)
 
   })
   

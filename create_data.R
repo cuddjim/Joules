@@ -65,6 +65,14 @@ subject_matter_1 <- list.files(pattern = "*LoadingData.csv") %>%
   spread(variable,value)
 
 
+story_frame = data.frame(province=c(rep('Ontario',4)),
+                        year=c(2005,2012,2013,2014),
+                        commodity=rep('total_coal',4),
+                        story=c('Lakeview generating station closure (Capacity of 2,400 MWh)',
+                                'Atikokan generating station closure (Capacity of 211 MWh)',
+                                'Lambton and Nanticoke generating station closures (Total Capacity of 6,920 MWh)',
+                                'Thunder Bay generating station closure (Capacity of 306 MWh)')) %>%
+  mutate(story=as.character(story))
 
 subject_matter_2 <- list.files(pattern = "*LoadingData.csv") %>%
   lapply(read_csv) %>%
@@ -84,8 +92,8 @@ subject_matter_2 <- list.files(pattern = "*LoadingData.csv") %>%
   left_join(convert_inputs_to_tj, by='commodity') %>% 
   mutate(value = ifelse(indicator=='input',value*conversion_factor_tj,value)) %>% 
   rbind(.,subject_matter_3 %>% select(-variable)) %>%
-  spread(indicator,value)
-
+  spread(indicator,value) %>%
+  left_join(story_frame,by=c('province','commodity','year'))
 
 
 
