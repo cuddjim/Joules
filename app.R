@@ -202,7 +202,7 @@ server <- function(input, output) {
   observe({
     
     prov_popup <- paste0('<strong>',selected_com_ind()$NAME,', ',
-                         input$commodity1,"</strong> <br>",
+                         input$map_commodity,"</strong> <br>",
                          '<strong>Emissions: </strong>',selected_com_ind()$emissions, " tonnes",
                          '<br><strong>Outputs: </strong>',selected_com_ind()$outputs, " MWh")
     
@@ -344,7 +344,6 @@ server <- function(input, output) {
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
       layout(showLegend=FALSE,
-             title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
              xaxis = list(title = "",range = c(min(input$year),max(input$year))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$price,linegraph_reactive2()$price)),~max(c(linegraph_reactive()$price,linegraph_reactive2()$price))),
                           side = 'left', title = 'Price (thousands $)', showgrid = FALSE, zeroline = FALSE))
@@ -362,8 +361,7 @@ server <- function(input, output) {
                 hoverinfo = "text",
                 showlegend=FALSE,
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
-      layout(title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
-             xaxis = list(title = "",range = c(min(input$year),max(input$year))),
+      layout(xaxis = list(title = "",range = c(min(input$year),max(input$year))),
              showlegend=FALSE,
              yaxis = list(range=c(~min(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency)),~max(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency))),
                           side = 'left', title = 'Efficiency (MWh/TJ)', showgrid = FALSE, zeroline = FALSE))
@@ -407,7 +405,7 @@ server <- function(input, output) {
     selected_indicator = input$variable
     
     subject_matter_2 %>%
-      filter(year %in% min_year:max_year) %>%
+      filter(year %in% min_year:max_year & province != "Canada") %>%
       select(province,commodity,noquote(paste0(selected_indicator))) %>%
       rename(indicator=noquote(paste0(selected_indicator))) %>%
       group_by(province,commodity) %>%
