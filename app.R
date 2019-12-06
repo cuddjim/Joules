@@ -49,17 +49,17 @@ ui <- dashboardPage(
 
         /* logo */
         .skin-blue .main-header .logo {
-                              background-color: #55579A;
+                              background-color: #000000;
                               }
 
         /* logo when hovered */
         .skin-blue .main-header .logo:hover {
-                              background-color: #55579A;
+                              background-color: #000000;
                               }
 
         /* navbar (rest of the header) */
         .skin-blue .main-header .navbar {
-                              background-color: #55579A;
+                              background-color: #000000;
                               }
 
         /* main sidebar */
@@ -84,7 +84,7 @@ ui <- dashboardPage(
     fluidRow(
     
       box(title='Thematic Map of Emissions and Output by Fuel Type', status = "primary", solidHeader = TRUE, 
-          collapsible = TRUE, column(6,selectInput("map_commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Select Map Fuel Type and Years'),
+          collapsible = TRUE, column(6,selectizeInput("map_commodity", label = HTML('<FONT color="#55579A"><FONT size="4pt">Select Map Fuel Type and Years'),
                                                    choices = setNames(commodities,commodity_labels), selected = 'diesel')),
           column(6,sliderInput("year", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),leafletOutput("plot", height= '600px'),width = '100%'
           )
@@ -95,18 +95,21 @@ ui <- dashboardPage(
                       The bubble charts show all fuel types per province, 
                       while the line graphs show the fuels selected in the Compare and To drop down menus:")),
     
+    fluidRow(box(title='Notable stories from thermal energy production', status = "primary", solidHeader = TRUE, 
+             collapsible = TRUE, collapsed = TRUE, dataTableOutput("storytable"),width = '100%')
+      # column(3,actionButton("gobutton", label = HTML('<FONT color="#55579A"><FONT size="4pt">Data stories'), width = '100%'),
+      #        dataTableOutput("storytable"))
+    ),
+    
     fluidRow(
       
       box(title='Input(TJ), Output(MWh), emissions(metric tonnes), price($ x 1,000), efficiency ratio', status = "primary", solidHeader = TRUE, 
           collapsible = TRUE,
-        
-        column(3,selectInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
+        column(3,selectizeInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
                                choices = areas, selected='Ontario')),
-        column(3,actionButton("gobutton", label = HTML('<FONT color="#55579A"><FONT size="4pt">Data stories'), width = '100%'),
-               dataTableOutput("storytable")),
-        column(3,selectInput("commodity1", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
+        column(3,offset=3,selectizeInput("commodity1", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
                                choices = setNames(commodities,commodity_labels), selected = 'wood')),
-        column(3,selectInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">To'),
+        column(3,selectizeInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">To'),
                                choices = setNames(commodities,commodity_labels), selected = 'total_coal')),
         column(plotlyOutput("bubble"),width= 6),
         column(plotlyOutput("linegraph_input"),width = 6),
@@ -130,15 +133,40 @@ ui <- dashboardPage(
 # create server
 server <- function(input, output) {
   
-  data <- eventReactive(input$gobutton,{
-
-    
-    df <- as.datatable(data.frame(a=c("story a","story b"),b=c("desc a","desc b")) %>% formattable(),options=list(dom='t'))
-    df
-  })
+  # data <- eventReactive(input$gobutton,{
+  # 
+  #   
+  #   df <- as.datatable(data.frame(a=c("story a","story b"),b=c("desc a","desc b")) %>% formattable(),options=list(dom='t'))
+  #   df
+  # })
   
   output$storytable <- renderDataTable({
-   data()
+    as.datatable(data.frame(Story=c("Ontario eliminates coal",
+                                    "PEI wind electricity",
+                                    "Energy in the North"),
+                            Description=c("In 2001, Ontario had 5 coal fired generating stations with a capacity of 
+                                          roughly 8,800 MWh. By 2014, all coal generating stations ceased operations
+                                          to be replaced with a mixture of nuclear, natural gas fired, and non-hydro 
+                                          renewable plants. The Atikokan and Thunder Bay generating stations are now 
+                                          exclusively biomass based facilities",
+                                          "PEI has no sources of oil, natural gas, or other fuels used traditionally 
+                                          for electricity generation.  Instead 99% of their electricity production 
+                                          comes from wind mills.  However, wind production only is able to meet roughly 
+                                          25% of PEI's demand for electricity.  The remainder is imported from 
+                                          New Brunswick.  There is an ideal wind speed for wind generated electricity. 
+                                          The wind needs to be fast enough to move the wind turbine (12-14 km/h), 
+                                          but not too strong that the turbines need to be shut down in order to protect 
+                                          them (roughly 90 km/h).  The ideal wind speed to for the turbines to be at 
+                                          full capacity is between 50 to 60 km/h.",
+                                          "Unlike the rest of Canada where the major fuel used (except in transportation) 
+                                          is natural gas, the North runs on diesel.  Energy options in the North are limited 
+                                          because there is no infrastructure in place that allows electricity to be imported 
+                                          from Southern Canada.  All electricity consumed must be generated locally.
+                                          In Nunavut, 100% of electricity generation comes from diesel where in Yukon 
+                                          the main type of electricity generation is hydro with diesel making up the difference. 
+                                          In some communities in the North unsubsidized electricity costs are 10 times that of the 
+                                          Canadian average on a per KWh basis whereas consumption is twice that national average.")) %>% 
+                   formattable(),options=list(dom='t'))
   })
 
   
@@ -225,7 +253,7 @@ server <- function(input, output) {
       layout(title = paste0('Comparing ',input$province,' Energy Types'),
              xaxis = list(zeroline=FALSE),
              yaxis = list(zeroline=FALSE),
-             legend = list(orientation = 'h',y=-0.3))
+             legend = list(orientation = 'h',y=-0.4))
     
   })
   
@@ -302,13 +330,15 @@ server <- function(input, output) {
     
     a = plot_ly() %>%
       add_trace(data = linegraph_reactive(), x= ~year, y= ~price,type = 'scatter', mode = 'none', 
-                name= input$commodity1, 
+                name= input$commodity1,
+                showlegend=FALSE, 
                 fill = 'tozeroy', fillcolor = 'rgba(255, 212, 96, 0.3)',
                 line = list(color = 'rgba(255, 212, 96, 1)',width = 1),
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y= ~price,type = 'scatter', mode = 'none', 
-                name= input$commodity2, 
+                name= input$commodity2,
+                showlegend=FALSE, 
                 fill = 'tozeroy', fillcolor = 'rgba(168, 216, 234, 0.3)',
                 line = list(color = 'rgba(168, 216, 234, 1)', width = 1),
                 hoverinfo = "text",
@@ -324,14 +354,17 @@ server <- function(input, output) {
                 fill = 'tozeroy', fillcolor = 'rgba(255, 212, 96, 0.3)',
                 line = list(color = 'rgba(255, 212, 96, 1)',width = 1),
                 hoverinfo = "text",
+                showlegend=FALSE,
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y = ~efficiency, type = 'scatter', mode = 'none', name = input$commodity2,
                 fill = 'tozeroy', fillcolor = 'rgba(168, 216, 234, 0.3)',
                 line = list(color = 'rgba(168, 216, 234, 1)', width = 1),
                 hoverinfo = "text",
+                showlegend=FALSE,
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
       layout(title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
              xaxis = list(title = "",range = c(min(input$year),max(input$year))),
+             showlegend=FALSE,
              yaxis = list(range=c(~min(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency)),~max(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency))),
                           side = 'left', title = 'Efficiency (MWh/TJ)', showgrid = FALSE, zeroline = FALSE))
     
@@ -415,15 +448,15 @@ server <- function(input, output) {
     
     as.datatable(formattable(table_reactive(), align = c("l", rep("r", ncol(table_reactive())-1)),
                 list('province' = custom_color_tile_2(),
-                     'diesel' = custom_color_tile('white','#00ff00'),
-                     'heavy_fuel_oil' = custom_color_tile('white','#00ff00'),
-                     'light_fuel_oil' = custom_color_tile('white','#00ff00'),
-                     'wood' = custom_color_tile('white','#00ff00'),
-                     'propane' = custom_color_tile('white','#00ff00'),
-                     'uranium' = custom_color_tile('white','#00ff00'),
-                     'total_coal' = custom_color_tile('white','#00ff00'),
-                     'natural_gas' = custom_color_tile('white','#00ff00'),
-                     'methane' = custom_color_tile('white','#00ff00')
+                     'diesel' = custom_color_tile('white','#8c81f7'),
+                     'heavy_fuel_oil' = custom_color_tile('white','#8c81f7'),
+                     'light_fuel_oil' = custom_color_tile('white','#8c81f7'),
+                     'wood' = custom_color_tile('white','#8c81f7'),
+                     'propane' = custom_color_tile('white','#8c81f7'),
+                     'uranium' = custom_color_tile('white','#8c81f7'),
+                     'total_coal' = custom_color_tile('white','#8c81f7'),
+                     'natural_gas' = custom_color_tile('white','#8c81f7'),
+                     'methane' = custom_color_tile('white','#8c81f7')
                      )
                 ), options=list(pageLength=15,dom='t'))
                      
