@@ -20,6 +20,8 @@ require(plotly)
 require(tools)
 require(formattable)
 require(DT)
+require(scales)
+
 # set working directory
 # setwd("~/Documents/Projects/KnownSideEffects/")
 # setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
@@ -244,7 +246,7 @@ server <- function(input, output) {
     
     efficiency_selected() %>%
       plot_ly(type = 'scatter', mode = 'markers', x = ~input, y = ~output, size = ~price, color = ~commodity,
-              colors = viridis_pal(option = "D")(10),
+              colors = viridis_pal(option = "D")(10), name = ~toTitleCase(gsub('_', ' ', commodity)),
               marker = list(sizeref=0.1, line = list(width = 1, color = '#FFFFFF')), hoverinfo = 'text', 
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>',
@@ -252,7 +254,7 @@ server <- function(input, output) {
                           '<b>Output: </b>',format(output,big.mark=",",scientific=FALSE),'MWh')) %>%
       layout(title = paste0('Comparing ',input$province,' Energy Types'),
              xaxis = list(zeroline=FALSE),
-             yaxis = list(zeroline=FALSE),
+             yaxis = list(zeroline=FALSE),margin = list(t=75,b=20), 
              legend = list(orientation = 'h',y=-0.4))
     
   })
@@ -268,6 +270,7 @@ server <- function(input, output) {
                                 commodity %in% selected_commodity,
                                 year %in% min_year:max_year) %>%
       mutate(efficiency=output/input)
+    
   })
   
   linegraph_reactive2 <- reactive({
@@ -286,38 +289,37 @@ server <- function(input, output) {
   output$linegraph_input <- renderPlotly({
     
     a = plot_ly() %>%
-      add_trace(data=linegraph_reactive(),x= ~year, y= ~input,type = 'scatter', mode = 'none', name= input$commodity1, 
+      add_trace(data=linegraph_reactive(),x= ~year, y= ~input,type = 'scatter', mode = 'none', name= toTitleCase(gsub('_', ' ', input$commodity1)), 
                 fill = 'tozeroy', fillcolor = 'rgba(255, 212, 96, 0.3)',
                 line = list(color = 'rgba(255, 212, 96, 1)',width = 1),
                 hoverinfo = "text",
                 text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ'),legendgroup = ~commodity,showlegend=FALSE) %>%
-      add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'none', name= input$commodity2, 
+      add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'none', name= toTitleCase(gsub('_', ' ', input$commodity2)), 
                 fill = 'tozeroy', fillcolor = 'rgba(168, 216, 234, 0.3)',
                 line = list(color = 'rgba(168, 216, 234, 1)', width = 1),
                 hoverinfo = "text",
                 text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ'),legendgroup = ~commodity,showlegend=FALSE) %>%
       add_trace(data=linegraph_reactive2(),x= ~year, y= ~input,type = 'scatter', mode = 'markers', name= 'story',
-                opacity = 0.8, marker = list(size=~nchar(story)/5, color='#b30000'),
+                opacity = 0.8, marker = list(size=~ifelse(nchar(story)>0,10,0), color='rgba(168, 216, 234, 1)'),
                 hoverinfo = "text",
                 text = ~paste(story),legendgroup = ~commodity,showlegend=FALSE) %>%
-      # add_text(x=c(2009,2010),y=c(100000,100000),text=c('\U24BE',NA),showlegend = FALSE) %>%
-      layout(title = paste0('Comparing Inputs of ',input$commodity1,' to ',input$commodity2),
+      layout(title = paste0('Comparing Inputs of ',toTitleCase(gsub('_', ' ', input$commodity1)),' to ',toTitleCase(gsub('_', ' ', input$commodity2))),
              xaxis = list(title = "",showline=FALSE, range = c(min(input$year),max(input$year))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$input,linegraph_reactive2()$input)),~max(c(linegraph_reactive()$input,linegraph_reactive2()$input))),
                           side = 'left', title = 'Input (TJ)', showgrid = FALSE, showline = FALSE))
 
     b = plot_ly() %>%
-      add_trace(data=linegraph_reactive(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name = input$commodity1, 
+      add_trace(data=linegraph_reactive(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name= toTitleCase(gsub('_', ' ', input$commodity1)),  
                 fill = 'tozeroy', fillcolor = 'rgba(255, 212, 96, 0.3)',
                 line = list(color = 'rgba(255, 212, 96, 1)',width = 1),
                 hoverinfo = "text",
                 text = ~paste(format(round(output,0),big.mark = ",",scientific = FALSE),'MWh'),legendgroup = ~commodity) %>%
-      add_trace(data=linegraph_reactive2(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name = input$commodity2, 
+      add_trace(data=linegraph_reactive2(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name= toTitleCase(gsub('_', ' ', input$commodity2)), 
                 fill = 'tozeroy', fillcolor = 'rgba(168, 216, 234, 0.3)',
                 line = list(color = 'rgba(168, 216, 234, 1)', width = 1),
                 hoverinfo = "text",
                 text = ~paste(format(round(output,0),big.mark = ",",scientific = FALSE),'MWh'),legendgroup = ~commodity) %>%
-      layout(legend = list(orientation = 'h'), title = paste0('Comparing ',input$commodity1,' to ',input$commodity2,' in ',input$province),
+      layout(margin = list(t=75), legend = list(orientation = 'h'), title = paste0('Comparing ',toTitleCase(gsub('_', ' ', input$commodity1)),' to ',toTitleCase(gsub('_', ' ', input$commodity2)),' in ',input$province),
              xaxis = list(title = "",range = c(min(input$year),max(input$year))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$output,linegraph_reactive2()$output)),~max(c(linegraph_reactive()$output,linegraph_reactive2()$output))),
                           side = 'left', title = 'Output (MWh)', showgrid = FALSE, zeroline = FALSE))
@@ -343,7 +345,7 @@ server <- function(input, output) {
                 line = list(color = 'rgba(168, 216, 234, 1)', width = 1),
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
-      layout(showLegend=FALSE,
+      layout(margin = list(b=75), showLegend=FALSE,
              xaxis = list(title = "",range = c(min(input$year),max(input$year))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$price,linegraph_reactive2()$price)),~max(c(linegraph_reactive()$price,linegraph_reactive2()$price))),
                           side = 'left', title = 'Price (thousands $)', showgrid = FALSE, zeroline = FALSE))

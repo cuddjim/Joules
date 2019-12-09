@@ -93,7 +93,8 @@ subject_matter_2 <- list.files(pattern = "*LoadingData.csv") %>%
   mutate(value = ifelse(indicator=='input',value*conversion_factor_tj,value)) %>% 
   rbind(.,subject_matter_3 %>% select(-variable)) %>%
   spread(indicator,value) %>%
-  left_join(story_frame,by=c('province','commodity','year'))
+  left_join(story_frame,by=c('province','commodity','year')) %>%
+  mutate(price=price/input)
 
 
 
