@@ -208,15 +208,15 @@ server <- function(input, output) {
                          '<strong>Emissions: </strong>',selected_com_ind()$emissions, " tonnes",
                          '<br><strong>Outputs: </strong>',selected_com_ind()$outputs, " MWh")
     
-    color_pal <- colorNumeric(palette = "RdYlBu", 
-                              domain = selected_com_ind()$emissions, reverse = TRUE)
+    color_pal <- colorNumeric(palette = "YlOrRd", 
+                              domain = selected_com_ind()$emissions)
     huey = selected_com_ind()$emissions
     
     leafletProxy("plot") %>%
       clearShapes() %>%
       clearControls() %>%
       addPolygons(data = selected_com_ind(),
-                  fillColor = ~colorBin("RdYlBu", emissions, 5, reverse = TRUE)(emissions),
+                  fillColor = ~colorBin("YlOrRd", emissions, 5)(emissions),
                   color = "#BDBDC3",
                   fillOpacity = 0.7,
                   weight = 1) %>%
@@ -225,9 +225,9 @@ server <- function(input, output) {
                  color = 'black',
                  popup = prov_popup,
                  weight = ~scaled_outputs*23) %>% 
-      addLegend(opacity = 0.7, title = "CO2e Emissions (tonnes)","bottomleft", pal = colorBin(palette = "RdYlBu", 
-                                                  domain = selected_com_ind()$emissions, reverse = FALSE), values = huey, 
-                labFormat = labelFormat(transform = function(huey) sort(huey, decreasing = TRUE)))
+      addLegend(opacity = 0.7, title = "CO2e Emissions (tonnes)","bottomleft", pal = colorBin(palette = "YlOrRd", 
+                                                  domain = selected_com_ind()$emissions), values = huey, 
+                labFormat = labelFormat(transform = function(huey) sort(huey, decreasing = FALSE)))
     
   })
   
