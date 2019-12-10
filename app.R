@@ -124,11 +124,11 @@ ui <- dashboardPage(
     fluidRow(helpText("The graphs below compare fuel types per province selected. 
                       The bubble charts show all fuel types per province, 
                       while the line graphs show the fuels selected in the Compare and To drop down menus:")),
-    fluidRow(box(title = "Data table for now", status = "primary", solidHeader = TRUE, 
-                 collapsible = TRUE, column(3,selectInput("variable", 
-                                                         label = HTML('<FONT color="#55579A"><FONT size="4pt">Select variable to display:'),
-                                                         choices = indicators, selected='input')),
-                                     column(3,sliderInput("year3", h6(''), 2005, 2018, value=c(2005,2018),sep = "")), 
+    fluidRow(box(title = "Data table for now", status = "primary", solidHeader = TRUE,
+                 collapsible = TRUE, column(3,selectInput("variable",
+                                                          label = HTML('<FONT color="#55579A"><FONT size="4pt">Select variable to display:'),
+                                                          choices = indicators, selected='input')),
+                 column(3,sliderInput("year3", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),
                  dataTableOutput('prov_comp'),width = '100%')
              )
       
@@ -137,13 +137,6 @@ ui <- dashboardPage(
 
 # create server
 server <- function(input, output) {
-  
-  # data <- eventReactive(input$gobutton,{
-  # 
-  #   
-  #   df <- as.datatable(data.frame(a=c("story a","story b"),b=c("desc a","desc b")) %>% formattable(),options=list(dom='t'))
-  #   df
-  # })
   
   output$storytable <- renderDataTable({
     as.datatable(data.frame(story_frame) %>% 
@@ -381,8 +374,8 @@ server <- function(input, output) {
   
   table_reactive <- reactive({
     
-    min_year = min(input$year2)
-    max_year = max(input$year2)
+    min_year = min(input$year3)
+    max_year = max(input$year3)
     selected_indicator = input$variable
     
     subject_matter_2 %>%
@@ -393,7 +386,7 @@ server <- function(input, output) {
       summarize(mean_value=comma(round(mean(indicator,na.rm=TRUE),0),format='d')) %>%
       spread(commodity,mean_value) %>%
       replace(is.na(.), 0) %>%
-      arrange(-diesel)
+      arrange(desc(diesel))
     
   })
   
@@ -404,12 +397,12 @@ server <- function(input, output) {
     {
       
       formatter("span",
-                style = function(x) style(display = "block", 
-                                          padding = "0 4px", 
-                                          `color` = "black", 
-                                          `border-radius` = "4px", 
+                style = function(x) style(display = "block",
+                                          padding = "0 4px",
+                                          `color` = "black",
+                                          `border-radius` = "4px",
                                           width = "80px",
-                                          `background-color` = csscolor(gradient(as.numeric(x), 
+                                          `background-color` = csscolor(gradient(as.numeric(x),
                                                                                  ...))))
     }
     
@@ -418,26 +411,25 @@ server <- function(input, output) {
     {
       
       formatter("span",
-                style = function(x) style(display = "block", 
-                                          padding = "0 2px", 
-                                          `color` = "black", 
-                                          `border-radius` = "2px", 
+                style = function(x) style(display = "block",
+                                          padding = "0 2px",
+                                          `color` = "black",
+                                          `border-radius` = "2px",
                                           width = "250px"))
     }
     
     as.datatable(formattable(table_reactive(), align = c("l", rep("r", ncol(table_reactive())-1)),
-                list('province' = custom_color_tile_2(),
-                     'diesel' = custom_color_tile('white','#8c81f7'),
-                     'heavy_fuel_oil' = custom_color_tile('white','#8c81f7'),
-                     'light_fuel_oil' = custom_color_tile('white','#8c81f7'),
-                     'wood' = custom_color_tile('white','#8c81f7'),
-                     'propane' = custom_color_tile('white','#8c81f7'),
-                     'uranium' = custom_color_tile('white','#8c81f7'),
-                     'total_coal' = custom_color_tile('white','#8c81f7'),
-                     'natural_gas' = custom_color_tile('white','#8c81f7'),
-                     'methane' = custom_color_tile('white','#8c81f7')
-                     )
-                ), options=list(pageLength=15,dom='t'))
+                             list('province' = custom_color_tile_2(),
+                                  'diesel' = custom_color_tile('white','#8c81f7'),
+                                  'heavy_fuel_oil' = custom_color_tile('white','#8c81f7'),
+                                  'light_fuel_oil' = custom_color_tile('white','#8c81f7'),
+                                  'wood' = custom_color_tile('white','#8c81f7'),
+                                  'propane' = custom_color_tile('white','#8c81f7'),
+                                  'uranium' = custom_color_tile('white','#8c81f7'),
+                                  'total_coal' = custom_color_tile('white','#8c81f7'),
+                                  'natural_gas' = custom_color_tile('white','#8c81f7'),
+                                  'methane' = custom_color_tile('white','#8c81f7'))),
+                 options=list(pageLength=15,dom='t'))
                      
                      })
   
