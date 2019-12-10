@@ -21,6 +21,7 @@ require(tools)
 require(formattable)
 require(DT)
 require(scales)
+require(shiny.i18n)
 
 # set working directory
 # setwd("~/Documents/Projects/KnownSideEffects/")
@@ -123,7 +124,7 @@ ui <- dashboardPage(
                       The bubble charts show all fuel types per province, 
                       while the line graphs show the fuels selected in the Compare and To drop down menus:")),
     fluidRow(box(title = "Data table for now", status = "primary", solidHeader = TRUE, 
-                 collapsible = TRUE,column(3,selectInput("variable", 
+                 collapsible = TRUE, column(3,selectInput("variable", 
                                                          label = HTML('<FONT color="#55579A"><FONT size="4pt">Select variable to display:'),
                                                          choices = indicators, selected='input')), 
                  dataTableOutput('prov_comp'),width = '100%')
@@ -143,31 +144,7 @@ server <- function(input, output) {
   # })
   
   output$storytable <- renderDataTable({
-    as.datatable(data.frame(Story=c("Ontario eliminates coal",
-                                    "PEI wind electricity",
-                                    "Energy in the North"),
-                            Description=c("In 2001, Ontario had 5 coal fired generating stations with a capacity of 
-                                          roughly 8,800 MWh. By 2014, all coal generating stations ceased operations
-                                          to be replaced with a mixture of nuclear, natural gas fired, and non-hydro 
-                                          renewable plants. The Atikokan and Thunder Bay generating stations are now 
-                                          exclusively biomass based facilities",
-                                          "PEI has no sources of oil, natural gas, or other fuels used traditionally 
-                                          for electricity generation.  Instead 99% of their electricity production 
-                                          comes from wind mills.  However, wind production only is able to meet roughly 
-                                          25% of PEI's demand for electricity.  The remainder is imported from 
-                                          New Brunswick.  There is an ideal wind speed for wind generated electricity. 
-                                          The wind needs to be fast enough to move the wind turbine (12-14 km/h), 
-                                          but not too strong that the turbines need to be shut down in order to protect 
-                                          them (roughly 90 km/h).  The ideal wind speed to for the turbines to be at 
-                                          full capacity is between 50 to 60 km/h.",
-                                          "Unlike the rest of Canada where the major fuel used (except in transportation) 
-                                          is natural gas, the North runs on diesel.  Energy options in the North are limited 
-                                          because there is no infrastructure in place that allows electricity to be imported 
-                                          from Southern Canada.  All electricity consumed must be generated locally.
-                                          In Nunavut, 100% of electricity generation comes from diesel where in Yukon 
-                                          the main type of electricity generation is hydro with diesel making up the difference. 
-                                          In some communities in the North unsubsidized electricity costs are 10 times that of the 
-                                          Canadian average on a per KWh basis whereas consumption is twice that national average.")) %>% 
+    as.datatable(data.frame(story_frame) %>% 
                    formattable(),options=list(dom='t'))
   })
 
@@ -205,8 +182,8 @@ server <- function(input, output) {
     
     prov_popup <- paste0('<strong>',selected_com_ind()$NAME,', ',
                          input$map_commodity,"</strong> <br>",
-                         '<strong>Emissions: </strong>',selected_com_ind()$emissions, " tonnes",
-                         '<br><strong>Outputs: </strong>',selected_com_ind()$outputs, " MWh")
+                         '<strong>Emissions: </strong>',formatC(round(selected_com_ind()$emissions,0), format = 'd', big.mark = ","), " tonnes",
+                         '<br><strong>Outputs: </strong>',formatC(round(selected_com_ind()$outputs,0), format = 'd', big.mark = ","), " MWh")
     
     color_pal <- colorNumeric(palette = "YlOrRd", 
                               domain = selected_com_ind()$emissions)
