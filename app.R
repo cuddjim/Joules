@@ -110,14 +110,15 @@ ui <- dashboardPage(
           collapsible = TRUE,
         column(3,selectizeInput("province", label = HTML('<FONT color="#55579A"><FONT size="4pt">Province'),
                                choices = areas, selected='Ontario')),
-        column(3,offset=3,selectizeInput("commodity1", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
+        column(3,sliderInput("year2", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),
+        column(2, offset=3,selectizeInput("commodity1", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
                                choices = setNames(commodities,commodity_labels), selected = 'wood')),
-        column(3,selectizeInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">To'),
+        column(2,selectizeInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">To'),
                                choices = setNames(commodities,commodity_labels), selected = 'total_coal')),
-        column(plotlyOutput("bubble"),width= 6),
-        column(plotlyOutput("linegraph_input"),width = 6),
-        column(plotlyOutput("bubble_2"),width= 6),
-        column(plotlyOutput("linegraph2"),width = 6),width='100%')
+        column(plotlyOutput("bubble"), width = 6),
+        column(plotlyOutput("linegraph_input"), width = 6),
+        column(plotlyOutput("bubble_2"), width = 6),
+        column(plotlyOutput("linegraph2"), width = 6), width='100%')
       
     ),
     fluidRow(helpText("The graphs below compare fuel types per province selected. 
@@ -126,7 +127,8 @@ ui <- dashboardPage(
     fluidRow(box(title = "Data table for now", status = "primary", solidHeader = TRUE, 
                  collapsible = TRUE, column(3,selectInput("variable", 
                                                          label = HTML('<FONT color="#55579A"><FONT size="4pt">Select variable to display:'),
-                                                         choices = indicators, selected='input')), 
+                                                         choices = indicators, selected='input')),
+                                     column(3,sliderInput("year3", h6(''), 2005, 2018, value=c(2005,2018),sep = "")), 
                  dataTableOutput('prov_comp'),width = '100%')
              )
       
@@ -232,7 +234,7 @@ server <- function(input, output) {
       layout(title = paste0('Comparing ',input$province,' Energy Types'),
              xaxis = list(zeroline=FALSE),
              yaxis = list(zeroline=FALSE),margin = list(t=75,b=20), 
-             legend = list(orientation = 'h',y=-0.4))
+             legend = list(orientation = 'h',y=-0.4, font = list(size = 10)))
     
   })
   
@@ -240,8 +242,8 @@ server <- function(input, output) {
     
     selected_province = input$province
     selected_commodity = input$commodity1
-    min_year = min(input$year)
-    max_year = max(input$year)
+    min_year = min(input$year2)
+    max_year = max(input$year2)
     
     subject_matter_2 %>% filter(province == selected_province,
                                 commodity %in% selected_commodity,
@@ -254,8 +256,8 @@ server <- function(input, output) {
     
     selected_province = input$province
     selected_commodity = input$commodity2
-    min_year = min(input$year)
-    max_year = max(input$year)
+    min_year = min(input$year2)
+    max_year = max(input$year2)
     
     subject_matter_2 %>% filter(province == selected_province,
                                 commodity %in% selected_commodity,
@@ -281,7 +283,7 @@ server <- function(input, output) {
                 hoverinfo = "text",
                 text = ~paste(story),legendgroup = ~commodity,showlegend=FALSE) %>%
       layout(title = paste0('Comparing Inputs of ',toTitleCase(gsub('_', ' ', input$commodity1)),' to ',toTitleCase(gsub('_', ' ', input$commodity2))),
-             xaxis = list(title = "",showline=FALSE, range = c(min(input$year),max(input$year))),
+             xaxis = list(title = "",showline=FALSE, range = c(min(input$year2),max(input$year2))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$input,linegraph_reactive2()$input)),~max(c(linegraph_reactive()$input,linegraph_reactive2()$input))),
                           side = 'left', title = 'Input (TJ)', showgrid = FALSE, showline = FALSE))
 
@@ -297,7 +299,7 @@ server <- function(input, output) {
                 hoverinfo = "text",
                 text = ~paste(format(round(output,0),big.mark = ",",scientific = FALSE),'MWh'),legendgroup = ~commodity) %>%
       layout(margin = list(t=75), legend = list(orientation = 'h'), title = paste0('Comparing ',toTitleCase(gsub('_', ' ', input$commodity1)),' to ',toTitleCase(gsub('_', ' ', input$commodity2)),' in ',input$province),
-             xaxis = list(title = "",range = c(min(input$year),max(input$year))),
+             xaxis = list(title = "",range = c(min(input$year2),max(input$year2))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$output,linegraph_reactive2()$output)),~max(c(linegraph_reactive()$output,linegraph_reactive2()$output))),
                           side = 'left', title = 'Output (MWh)', showgrid = FALSE, zeroline = FALSE))
     
@@ -323,7 +325,7 @@ server <- function(input, output) {
                 hoverinfo = "text",
                 text = ~paste(format(round(price,0),big.mark = ",",scientific = FALSE),' $')) %>%
       layout(margin = list(b=75), showLegend=FALSE,
-             xaxis = list(title = "",range = c(min(input$year),max(input$year))),
+             xaxis = list(title = "",range = c(min(input$year2),max(input$year2))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$price,linegraph_reactive2()$price)),~max(c(linegraph_reactive()$price,linegraph_reactive2()$price))),
                           side = 'left', title = 'Price (thousands $)', showgrid = FALSE, zeroline = FALSE))
     
@@ -340,7 +342,7 @@ server <- function(input, output) {
                 hoverinfo = "text",
                 showlegend=FALSE,
                 text = ~paste(format(round(efficiency,1),big.mark = ",",scientific = FALSE),'MWh/TJ')) %>%
-      layout(xaxis = list(title = "",range = c(min(input$year),max(input$year))),
+      layout(xaxis = list(title = "",range = c(min(input$year2),max(input$year2))),
              showlegend=FALSE,
              yaxis = list(range=c(~min(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency)),~max(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency))),
                           side = 'left', title = 'Efficiency (MWh/TJ)', showgrid = FALSE, zeroline = FALSE))
@@ -352,8 +354,8 @@ server <- function(input, output) {
   
   efficiency_selected <- reactive({
     
-    min_year = min(input$year)
-    max_year = max(input$year)
+    min_year = min(input$year2)
+    max_year = max(input$year2)
     selected_province = input$province
     
     subject_matter_2 %>%
@@ -379,8 +381,8 @@ server <- function(input, output) {
   
   table_reactive <- reactive({
     
-    min_year = min(input$year)
-    max_year = max(input$year)
+    min_year = min(input$year2)
+    max_year = max(input$year2)
     selected_indicator = input$variable
     
     subject_matter_2 %>%
