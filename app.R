@@ -81,7 +81,9 @@ ui <- dashboardPage(
     fluidRow(
      
      
-      helpText("These instructions are about the map, and I guess the whole thing in general")),
+      helpText("Please customise your selections for each section below.
+               The map, graphs, and data tables are not linked to each other
+               and must be customised individually.")),
     
     
     fluidRow(
@@ -121,10 +123,9 @@ ui <- dashboardPage(
         column(plotlyOutput("linegraph2"), width = 6), width='100%')
       
     ),
-    fluidRow(helpText("The graphs below compare fuel types per province selected. 
-                      The bubble charts show all fuel types per province, 
-                      while the line graphs show the fuels selected in the Compare and To drop down menus:")),
-    fluidRow(box(title = "Data table for now", status = "primary", solidHeader = TRUE,
+    fluidRow(helpText("The table below displays total information per time period selected, 
+    except for price where average price per period selected is displayed")),
+    fluidRow(box(title = "Provincial thermal energy information", status = "primary", solidHeader = TRUE,
                  collapsible = TRUE, column(3,selectInput("variable",
                                                           label = HTML('<FONT color="#55579A"><FONT size="4pt">Select variable to display:'),
                                                           choices = indicators, selected='input')),
@@ -227,7 +228,8 @@ server <- function(input, output) {
       layout(title = paste0('Comparing ',input$province,' Energy Types'),
              xaxis = list(zeroline=FALSE),
              yaxis = list(zeroline=FALSE),margin = list(t=75,b=20), 
-             legend = list(orientation = 'h',y=-0.4, font = list(size = 10)))
+             legend = list(orientation = 'h',y=-0.4, font = list(size = 10))) %>% 
+      config(locale = 'fr',displayModeBar = F)
     
   })
   
