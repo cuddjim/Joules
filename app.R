@@ -31,7 +31,7 @@ require(shiny.i18n)
 # create provincial data
 source("create_data.R")
 i18n <- Translator$new(translation_json_path = "Translation.json")
-i18n$set_translation_language("fr")
+#i18n$set_translation_language("fr")
 
 
 # create input vectors
@@ -44,6 +44,7 @@ commodities = c("wood","light_fuel_oil","heavy_fuel_oil","diesel","total_coal",
 commodity_labels = toTitleCase(gsub('_', ' ', commodities))
 # create user interface
 ui <- dashboardPage(
+  #output$language,
   
   dashboardHeader(title = i18n$t("Thermal Emissions Visualizations"), titleWidth = '100%'),
   
@@ -81,8 +82,11 @@ ui <- dashboardPage(
         }
 
                               '))),
+    
+    fluidRow(selectizeInput('language',
+                            label = "Please select language/S'il vous plat choisir le language.",
+                            choices = c("en","fr"), selected='en')),
     fluidRow(
-     
      
       helpText(i18n$t("Please customise your selections for each section below.The map, graphs, and data tables are not linked to each other and must be customised individually."))),
     
@@ -135,6 +139,8 @@ ui <- dashboardPage(
 
 # create server
 server <- function(input, output) {
+  
+  output$language <- reactive ({ i18n$set_translation_language(input$language) })
   
   output$storytable <- renderDataTable({
     as.datatable(data.frame(Story=c(i18n$t("Ontario eliminates coal"),
