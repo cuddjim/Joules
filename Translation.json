@@ -17,6 +17,10 @@
       "fr": "Émissions"
     },
     {
+      "en": "Emissions (tonnes)",
+      "fr": "Émissions (tonnes)"
+    },
+    {
       "en": "Outputs",
       "fr": "Production"
     },
@@ -25,19 +29,39 @@
       "fr": "Entrées"
     },
     {
+      "en": "Inputs (TJ x 1,000)",
+      "fr": "Entrées (TJ x 1,000)"
+    },
+    {
+      "en": "Inputs (TJ)",
+      "fr": "Entrées (TJs)"
+    },
+    {
+      "en": "Cost/unit ($ x 1,000)",
+      "fr": "Prix/unité ($ x 1,000)"
+    },
+    {
+      "en": "Average cost/unit ($ x 1,000)",
+      "fr": "Prix/unité moyen ($ x 1,000)"
+    },
+    {
       "en": "CO2e Emissions (tonnes)",
       "fr": "Émissions CO2e  (tonnes)"
     },
     {
-      "en": "The graphs below compare fuel types per province selected.The bubble charts show all fuel types per province, while the line graphs show the fuels selected in the Compare and To drop down menus:",
-      "fr": "Les graphiques ci-dessous comparent les types de carburant par province sélectionnée. Les graphiques à bulles montrent tous les types de carburant par province, tandis que les graphiques linéaires montrent les carburants sélectionnés dans les menus déroulants Comparer et À:"
+      "en": "Outputs(MWh)",
+      "fr": "Production(MWh)"
+    },
+    {
+      "en": "The graphs below compare fuel types per province selected.The bubble charts show all fuel types per province (the bubble size represents the cost per input), while the line graphs show the fuels selected in the Compare and To drop down menus:",
+      "fr": "Les graphiques ci-dessous comparent les types de carburant par province sélectionnée. Les graphiques à bulles montrent tous les types de carburant par province (la taille des bulles représente le prix par unité), tandis que les graphiques linéaires montrent les carburants sélectionnés dans les menus déroulants Comparer et À:"
     },
     {
       "en": "Notable stories related to electricity generated from combustibles",
       "fr": "Histoires notables liées à l'électricité produite à partir de combustibles"
     },
     {
-      "en": "Input(TJ), Output(MWh), emissions(metric tonnes), price($ x 1,000), efficiency ratio",
+      "en": "Input(TJ), Output(MWh), emissions(metric tonnes), cost($ x 1,000), efficiency ratio",
       "fr": "Entrée (TJ), production (MWh), émissions (tonnes métriques), prix (x 1000 $), rapport d'efficacité"
     },
     {
@@ -57,6 +81,10 @@
       "fr": "L'énergie dans le Nord"
     },
     {
+      "en": "Province",
+      "fr": "Province"
+    },
+    {
       "en": "In 2001, Ontario had 5 coal fired generating stations with a capacity of roughly 8,800 MWh. By 2014, all coal generating stations ceased operations to be replaced with a mixture of nuclear, natural gas fired, and non-hydro renewable plants. The Atikokan and Thunder Bay generating stations are now exclusively biomass based facilities",
       "fr": "En 2001, l'Ontario comptait 5 centrales au charbon d'une capacité d'environ 8 800 MWh. En 2014, toutes les centrales au charbon ont cessé d'être remplacées par un mélange de centrales nucléaires, au gaz naturel et non hydroélectriques renouvelables. Les centrales d'Atikokan et de Thunder Bay sont maintenant exclusivement des installations basées sur la biomasse"
     },
@@ -73,15 +101,52 @@
       "fr": "Contrairement au reste du Canada où le principal carburant utilisé (sauf dans les transports) est le gaz naturel, le Nord fonctionne au diesel. Les options énergétiques dans le Nord sont limitées car il n'y a pas d'infrastructure en place permettant l'importation d'électricité du Sud du Canada. Toute l'électricité consommée doit être produite localement. Au Nunavut, 100% de la production d'électricité provient du diesel alors qu'au Yukon, le principal type de production d'électricité est l'hydroélectricité, le diesel faisant la différence. Dans certaines collectivités du Nord, les coûts d'électricité non subventionnés sont 10 fois supérieurs à la moyenne canadienne par kWh, tandis que la consommation est le double de la moyenne nationale."
     },
     {
-      "en": "The table below displays total information per time period selected, except for price where average price per period selected is displayed",
-      "fr": "Le tableau ci-dessous affiche le total des informations par période sélectionnée, sauf pour le prix où le prix moyen par période sélectionnée est affiché"
+      "en": "The table below displays total information per time period selected, except for cost/unit where average cost/uit per period selected is displayed.",
+      "fr": "Le tableau ci-dessous affiche le total des informations par période sélectionnée, sauf pour le prix/unité où le prix/unité moyen par période sélectionnée est affiché."
     },
     {
       "en": "Provincial thermal energy information",
       "fr": "Information provinciale sur l'énergie thermique"
     },
     {
+      "en": "Efficiency (MWh/TJ)",
+      "fr": "Efficacité (MWh/TJ)"
+    },
+    {
+      "en": "Natural gas",
+      "fr": "Gaz naturel"
+    },
+    {
+      "en": "Total coal",
+      "fr": "Charbon total"
+    },
+    {
+      "en": "Wood",
+      "fr": "Bois"
+    },
+    {
+      "en": "Light fuel oil",
+      "fr": "Mazout léger"
+    },
+    {
+      "en": "Heavy fuel oil",
+      "fr": "Mazout lourd"
+    },
+    {
+      "en": "Diesel",
+      "fr": "Diesel"
+    },
+    {
+      "en": "Uranium",
+      "fr": "Uranium"
+    },
+    {
       "en": "Select variable to display:",
       "fr": "Sélectionnez la variable à afficher:"
+    },
+    {
+      "en": "Select year:",
+      "fr": "Sélectionnez l'année:"
     }
-]}
+    
+    ]}

@@ -3,7 +3,7 @@ convert_inputs_to_emissions = data.frame(
   
   commodity = c("wood","heavy_fuel_oil","diesel","total_coal",
                   "natural_gas","uranium","propane"),
-  conversion_factor = c(423,3145,2679,2430,1927,40,1540)
+  conversion_factor = c(100.11,74.58,74.08,90.87,49.88,0.01,60.61)
   
 )
 
@@ -13,7 +13,7 @@ convert_inputs_to_tj = data.frame(
   #               "Natural gas","Uranium","Methane","Propane"),
   commodity = c("wood","heavy_fuel_oil","diesel","total_coal",
                 "natural_gas","uranium","propane"),
-  conversion_factor_tj = c(0.018,0.0425,0.0383,0.0264,0.0383,0.28,0.02531)
+  conversion_factor_tj = c(0.018,0.0425,0.0383,0.0264,0.0383,700,0.02531)
   
 )
 

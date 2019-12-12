@@ -26,7 +26,8 @@ require(shiny.i18n)
 # set working directory
 # setwd("~/Documents/Projects/KnownSideEffects/")
 # setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
-# setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
+setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
+# setwd("C:/Users/cuddjim/Documents/KnownSideEffects")
 
 # create provincial data
 source("create_data.R")
@@ -51,90 +52,90 @@ ui <- dashboardPage(
   dashboardSidebar(disable = TRUE),
   
   dashboardBody(
-
+    
     tags$head(tags$style(HTML('
-
-        /* logo */
-        .skin-blue .main-header .logo {
+                              
+                              /* logo */
+                              .skin-blue .main-header .logo {
                               background-color: #000000;
                               }
-
-        /* logo when hovered */
-        .skin-blue .main-header .logo:hover {
+                              
+                              /* logo when hovered */
+                              .skin-blue .main-header .logo:hover {
                               background-color: #000000;
                               }
-
-        /* navbar (rest of the header) */
-        .skin-blue .main-header .navbar {
+                              
+                              /* navbar (rest of the header) */
+                              .skin-blue .main-header .navbar {
                               background-color: #000000;
                               }
-
-        /* main sidebar */
-        .skin-blue .main-sidebar {
+                              
+                              /* main sidebar */
+                              .skin-blue .main-sidebar {
                               background-color: #FFFFFF;
                               color: black;
-        }
-
-        /* body */
-        .content-wrapper, .right-side {
+                              }
+                              
+                              /* body */
+                              .content-wrapper, .right-side {
                               background-color: #FFFFFF;
-
-        }
-
+                              
+                              }
+                              
                               '))),
     
     fluidRow(selectizeInput('language',
                             label = "Please select language/S'il vous plat choisir le language.",
-                            choices = c("en","fr"), selected='en')),
+                            choices = c("en","fr"), selected='en', width = '40%')),
     fluidRow(
-     
+      
       helpText(i18n$t("Please customise your selections for each section below.The map, graphs, and data tables are not linked to each other and must be customised individually."))),
     
     
     fluidRow(
-    
+      
       box(title=i18n$t('Thematic Map of Emissions and Output by Fuel Type'), status = "primary", solidHeader = TRUE, 
           collapsible = TRUE, column(6,selectizeInput("map_commodity", label = HTML(paste0('<FONT color="#55579A"><FONT size="4pt">',i18n$t('Select Map Fuel Type and Years'))),
-                                                   choices = setNames(commodities,commodity_labels), selected = 'diesel')),
+                                                      choices = setNames(commodities,commodity_labels), selected = 'diesel')),
           column(6,sliderInput("year", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),leafletOutput("plot", height= '600px'),width = '100%'
-          )
+      )
       
-      ),
+    ),
     
-    fluidRow(helpText(i18n$t("The graphs below compare fuel types per province selected.The bubble charts show all fuel types per province, while the line graphs show the fuels selected in the Compare and To drop down menus:"))),
     
     fluidRow(box(title=i18n$t('Notable stories related to electricity generated from combustibles'), status = "primary", solidHeader = TRUE, 
-             collapsible = TRUE, collapsed = TRUE, dataTableOutput("storytable"),width = '100%')
+                 collapsible = TRUE, collapsed = TRUE, dataTableOutput("storytable"),width = '100%')
     ),
+    
+    fluidRow(helpText(i18n$t("The graphs below compare fuel types per province selected.The bubble charts show all fuel types per province (the bubble size represents the cost per input), while the line graphs show the fuels selected in the Compare and To drop down menus:"))),
     
     fluidRow(
       
-      box(title=i18n$t('Input(TJ), Output(MWh), emissions(metric tonnes), price($ x 1,000), efficiency ratio'), status = "primary", solidHeader = TRUE, 
+      box(title=i18n$t('Input(TJ), Output(MWh), emissions(metric tonnes), cost($ x 1,000), efficiency ratio'), status = "primary", solidHeader = TRUE, 
           collapsible = TRUE,
-        column(3,selectizeInput("province", label = HTML(paste0('<FONT color="#55579A"><FONT size="4pt">',i18n$t('Province'))),
-                               choices = areas, selected='Ontario')),
-        column(3,sliderInput("year2", label = NULL , 2005, 2018, value=c(2005,2018),sep = "")),
-        column(3,selectizeInput("commodity1", label = HTML('<FONT color="#55579A"><FONT size="4pt">Compare'),
-                               choices = setNames(commodities,commodity_labels), selected = 'wood')),
-        column(3,selectizeInput("commodity2", label = HTML('<FONT color="#55579A"><FONT size="4pt">To'),
-                               choices = setNames(commodities,commodity_labels), selected = 'total_coal')),
-        column(plotlyOutput("bubble"), width = 6),
-        column(plotlyOutput("linegraph_input"), width = 6),
-        column(plotlyOutput("bubble_2"), width = 6),
-        column(plotlyOutput("linegraph2"), width = 6), width='100%')
+          column(3,selectizeInput("province", label = HTML(paste0('<FONT color="#55579A"><FONT size="4pt">',i18n$t('Province'))),
+                                  choices = areas, selected='Ontario')),
+          column(3,sliderInput("year2", label = NULL , 2005, 2018, value=c(2005,2018),sep = "")),
+          column(3,selectizeInput("commodity1", label = HTML(paste0('<FONT color="#55579A"><FONT size="4pt">',i18n$t('Compare'))),
+                                  choices = setNames(commodities,commodity_labels), selected = 'wood')),
+          column(3,selectizeInput("commodity2", label = HTML(paste0('<FONT color="#55579A"><FONT size="4pt">',i18n$t('To'))),
+                                  choices = setNames(commodities,commodity_labels), selected = 'total_coal')),
+          column(plotlyOutput("bubble"), width = 6),
+          column(plotlyOutput("linegraph_input"), width = 6),
+          column(plotlyOutput("bubble_2"), width = 6),
+          column(plotlyOutput("linegraph2"), width = 6), width='100%')
       
     ),
-    fluidRow(helpText(i18n$t("The table below displays total information per time period selected, 
-    except for price where average price per period selected is displayed"))),
+    
     fluidRow(box(title = i18n$t("Provincial thermal energy information"), status = "primary", solidHeader = TRUE,
                  collapsible = TRUE, column(3,selectInput("variable",
                                                           label = HTML(paste0('<FONT color="#55579A"><FONT size="4pt">',i18n$t('Select variable to display:'))),
-                                                          choices = indicators, selected='input')),
-                 column(3,sliderInput("year3", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),
+                                                          choices = c("Inputs (TJ)"="input","Outputs (MWh)"="output","Average cost/unit ($ x 1,000)"= "price","Emissions (tonnes)"='emission'), selected='Inputs (TJ)')),
+                 column(3,selectInput("year3", i18n$t('Select year:'), 2005:2018, selected = 2018)),
                  dataTableOutput('prov_comp'),width = '100%')
-             ),
+    ),
     fluidRow("Source(s) ; 25-10-0017, 25-10-0018, 25-10-0019")
-      
+    
     ))
 
 
@@ -152,13 +153,13 @@ server <- function(input, output) {
                                           i18n$t("Unlike the rest of Canada where the major fuel used (except in transportation) is natural gas, the North runs on diesel. Energy options in the North are limited because there is no infrastructure in place that allows electricity to be imported from Southern Canada. All electricity consumed must be generated locally. In Nunavut, 100% of electricity generation comes from diesel where in Yukon the main type of electricity generation is hydro with diesel making up the difference. In some communities in the North unsubsidized electricity costs are 10 times that of the Canadian average on a per KWh basis whereas consumption is twice that national average."))) %>% 
                    formattable(),options=list(dom='t'))
   })
-
   
-   
+  
+  
   output$plot <- renderLeaflet({
     
     leaflet(options = leafletOptions(minZoom = 4, maxZoom = 6,
-      attributionControl=FALSE)) %>%
+                                     attributionControl=FALSE)) %>%
       setView(lng = -105.4, lat = 58.7, zoom = 4) %>%
       addProviderTiles(providers$Esri.WorldImagery,
                        options = providerTileOptions(opacity = 0.8))
@@ -207,18 +208,18 @@ server <- function(input, output) {
                  color = 'black',
                  popup = prov_popup,
                  weight = ~scaled_outputs*23) %>% 
-      addLegend(opacity = 0.7, title = "CO2e Emissions (tonnes)","bottomleft", pal = colorBin(palette = "YlOrRd", 
-                                                  domain = selected_com_ind()$emissions), values = huey, 
+      addLegend(opacity = 0.7, title = i18n$t("CO2e Emissions (tonnes)"),"bottomleft", pal = colorBin(palette = "YlOrRd", 
+                                                                                                      domain = selected_com_ind()$emissions), values = huey, 
                 labFormat = labelFormat(transform = function(huey) sort(huey, decreasing = FALSE)))
     
   })
   
   selected_prov_input <- reactive({
-
+    
     min_year = min(input$year)
     max_year = max(input$year)
     selected_province = input$province
-
+    
     subject_matter_2 %>%
       filter(province == selected_province & year %in% min_year:max_year) %>%
       mutate(year_opacity = ((year-1999)^3)/6859)
@@ -231,12 +232,12 @@ server <- function(input, output) {
               colors = viridis_pal(option = "D")(10), name = ~toTitleCase(gsub('_', ' ', commodity)),
               marker = list(sizeref=0.1, line = list(width = 1, color = '#FFFFFF')), hoverinfo = 'text', 
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
-                          '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>',
+                          '<b>Cost: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>',
                           '<b>Input: </b>',format(input,big.mark=",",scientific=FALSE),'TJ','<br>',
                           '<b>Output: </b>',format(output,big.mark=",",scientific=FALSE),'MWh')) %>%
       layout(title = paste0('Comparing ',input$province,' Energy Types'),
-             xaxis = list(zeroline=FALSE),
-             yaxis = list(zeroline=FALSE),margin = list(t=75,b=20), 
+             xaxis = list(title = i18n$t('Inputs (TJ x 1,000)'),zeroline=FALSE),
+             yaxis = list(title = i18n$t('Outputs(MWh)'),zeroline=FALSE),margin = list(t=75,b=20), 
              legend = list(orientation = 'h',y=-0.4, font = list(size = 10))) %>% 
       config(displayModeBar = F)
     
@@ -289,9 +290,9 @@ server <- function(input, output) {
       layout(title = paste0('Comparing Inputs of ',toTitleCase(gsub('_', ' ', input$commodity1)),' to ',toTitleCase(gsub('_', ' ', input$commodity2))),
              xaxis = list(title = "",showline=FALSE, range = c(min(input$year2),max(input$year2))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$input,linegraph_reactive2()$input)),~max(c(linegraph_reactive()$input,linegraph_reactive2()$input))),
-                          side = 'left', title = 'Input (TJ)', showgrid = FALSE, showline = FALSE)) %>% 
+                          side = 'left', title = i18n$t('Inputs (TJ)'), showgrid = FALSE, showline = FALSE)) %>% 
       config(displayModeBar = F)
-
+    
     b = plot_ly() %>%
       add_trace(data=linegraph_reactive(),x= ~year, y = ~output, type = 'scatter', mode = 'none', name= toTitleCase(gsub('_', ' ', input$commodity1)),  
                 fill = 'tozeroy', fillcolor = 'rgba(255, 212, 96, 0.3)',
@@ -306,7 +307,7 @@ server <- function(input, output) {
       layout(margin = list(t=75), legend = list(orientation = 'h'), title = paste0('Comparing ',toTitleCase(gsub('_', ' ', input$commodity1)),' to ',toTitleCase(gsub('_', ' ', input$commodity2)),' in ',input$province),
              xaxis = list(title = "",range = c(min(input$year2),max(input$year2))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$output,linegraph_reactive2()$output)),~max(c(linegraph_reactive()$output,linegraph_reactive2()$output))),
-                          side = 'left', title = 'Output (MWh)', showgrid = FALSE, zeroline = FALSE)) %>% 
+                          side = 'left', title = i18n$t('Outputs (MWh)'), showgrid = FALSE, zeroline = FALSE)) %>% 
       config(displayModeBar = F)
     
     subplot(a,b,nrows=2,titleY=TRUE,margin=0.075)
@@ -333,7 +334,7 @@ server <- function(input, output) {
       layout(margin = list(b=75), showLegend=FALSE,
              xaxis = list(title = "",range = c(min(input$year2),max(input$year2))),
              yaxis = list(range=c(~min(c(linegraph_reactive()$price,linegraph_reactive2()$price)),~max(c(linegraph_reactive()$price,linegraph_reactive2()$price))),
-                          side = 'left', title = 'Price (thousands $)', showgrid = FALSE, zeroline = FALSE)) %>% 
+                          side = 'left', title = i18n$t('Cost/unit ($ x 1,000)'), showgrid = FALSE, zeroline = FALSE)) %>% 
       config(displayModeBar = F)
     
     b = plot_ly() %>%
@@ -352,7 +353,7 @@ server <- function(input, output) {
       layout(xaxis = list(title = "",range = c(min(input$year2),max(input$year2))),
              showlegend=FALSE,
              yaxis = list(range=c(~min(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency)),~max(c(linegraph_reactive()$efficiency,linegraph_reactive2()$efficiency))),
-                          side = 'left', title = 'Efficiency (MWh/TJ)', showgrid = FALSE, zeroline = FALSE)) %>% 
+                          side = 'left', title = i18n$t('Efficiency (MWh/TJ)'), showgrid = FALSE, zeroline = FALSE)) %>% 
       config(displayModeBar = F)
     
     subplot(a,b,nrows=2,titleY=TRUE,margin=0.075)
@@ -374,18 +375,18 @@ server <- function(input, output) {
   })
   
   output$bubble_2 <- renderPlotly({
-
+    
     efficiency_selected() %>%
       plot_ly(type = 'scatter', mode = 'markers', x = ~efficiency, y = ~emission, size = ~price, color = ~commodity,
               colors = viridis_pal(option = "D")(10),
               marker = list(sizeref=0.1, line = list(width = 1, color = '#FFFFFF')), hoverinfo = 'text',
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
-                          '<b>Price: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>')) %>%
-      layout(xaxis = list(zeroline=FALSE),
-             yaxis = list(zeroline=FALSE),
+                          '<b>Cost: </b>$',format(price,big.mark=",",scientific=FALSE),'<br>')) %>%
+      layout(xaxis = list(title = i18n$t('Efficiency (MWh/TJ)'),zeroline=FALSE),
+             yaxis = list(title = i18n$t('Emissions (tonnes)'),zeroline=FALSE),
              showlegend=FALSE) %>% 
       config(displayModeBar = F)
-
+    
   })
   
   table_reactive <- reactive({
@@ -401,8 +402,10 @@ server <- function(input, output) {
       group_by(province,commodity) %>%
       summarize(mean_value=comma(round(mean(indicator,na.rm=TRUE),0),format='d')) %>%
       spread(commodity,mean_value) %>%
-      replace(is.na(.), 0) %>%
-      arrange(desc(diesel))
+      replace(is.na(.), 0) %>% 
+      select(-propane) %>%
+      set_colnames(c(i18n$t('Province'),i18n$t('Diesel'),i18n$t('Heavy fuel oil'),
+                     i18n$t('Natural gas'),i18n$t('Total coal'),i18n$t('Uranium'),i18n$t('Wood')))
     
   })
   
@@ -446,8 +449,8 @@ server <- function(input, output) {
                                   'natural_gas' = custom_color_tile('white','#8c81f7'),
                                   'methane' = custom_color_tile('white','#8c81f7'))),
                  options=list(pageLength=15,dom='t'))
-                     
-                     })
+    
+  })
   
   
 }
