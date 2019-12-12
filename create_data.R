@@ -30,6 +30,7 @@ subject_matter_3 <- list.files(pattern = "*LoadingData.csv") %>%
   select(REF_DATE,GEO,VALUE,indicator,commodity) %>% 
   mutate(commodity = ifelse(commodity == 'Methane','Natural gas',ifelse(commodity == 'Light fuel oil','Diesel',commodity))) %>% 
   group_by(REF_DATE, GEO, indicator, commodity) %>% 
+  mutate(VALUE = ifelse(indicator=='output',VALUE*0.0036,VALUE)) %>% 
   summarise(VALUE = sum(VALUE)) %>% 
   data.frame() %>% 
   set_colnames(c('year','province','indicator','commodity','value')) %>%
@@ -59,6 +60,7 @@ subject_matter_1 <- list.files(pattern = "*LoadingData.csv") %>%
   select(REF_DATE,GEO,VALUE,indicator,commodity) %>%
   mutate(commodity = ifelse(commodity == 'Methane','Natural gas',ifelse(commodity == 'Light fuel oil','Diesel',commodity))) %>% 
   group_by(REF_DATE, GEO, indicator, commodity) %>% 
+  mutate(VALUE = ifelse(indicator=='output',VALUE*0.0036,VALUE)) %>% 
   summarise(VALUE = sum(VALUE)) %>% 
   data.frame() %>% 
   set_colnames(c('year','province','indicator','commodity','value')) %>%
@@ -95,6 +97,7 @@ subject_matter_2 <- list.files(pattern = "*LoadingData.csv") %>%
   select(REF_DATE,GEO,VALUE,indicator,commodity) %>%
   mutate(commodity = ifelse(commodity == 'Methane','Natural gas',ifelse(commodity == 'Light fuel oil','Diesel',commodity))) %>% 
   group_by(REF_DATE, GEO, indicator, commodity) %>% 
+  mutate(VALUE = ifelse(indicator=='output',VALUE*0.0036,VALUE)) %>% 
   summarise(VALUE = sum(VALUE)) %>% 
   data.frame() %>% 
   set_colnames(c('year','province','indicator','commodity','value')) %>%
