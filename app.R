@@ -31,22 +31,22 @@ require(shiny.i18n)
 # create provincial data
 source("create_data.R")
 i18n <- Translator$new(translation_json_path = "Translation.json")
-#i18n$set_translation_language("fr")
+i18n$set_translation_language("fr")
 
 
 # create input vectors
 years = 2005:2018
 areas = prov_map@data$NAME
 indicators = c("input","output","price",'emission')
-commodities = c("wood","light_fuel_oil","heavy_fuel_oil","diesel","total_coal",
-                "natural_gas","uranium","methane","propane")
+commodities = c("wood","heavy_fuel_oil","diesel","total_coal",
+                "natural_gas","uranium")
 
 commodity_labels = toTitleCase(gsub('_', ' ', commodities))
 # create user interface
 ui <- dashboardPage(
   #output$language,
   
-  dashboardHeader(title = i18n$t("Thermal Emissions Visualizations"), titleWidth = '100%'),
+  dashboardHeader(title = i18n$t("Electricity generated from combustible fuels"), titleWidth = '100%'),
   
   dashboardSidebar(disable = TRUE),
   
@@ -103,7 +103,7 @@ ui <- dashboardPage(
     
     fluidRow(helpText(i18n$t("The graphs below compare fuel types per province selected.The bubble charts show all fuel types per province, while the line graphs show the fuels selected in the Compare and To drop down menus:"))),
     
-    fluidRow(box(title=i18n$t('Notable stories from thermal energy production'), status = "primary", solidHeader = TRUE, 
+    fluidRow(box(title=i18n$t('Notable stories related to electricity generated from combustibles'), status = "primary", solidHeader = TRUE, 
              collapsible = TRUE, collapsed = TRUE, dataTableOutput("storytable"),width = '100%')
     ),
     
@@ -132,7 +132,8 @@ ui <- dashboardPage(
                                                           choices = indicators, selected='input')),
                  column(3,sliderInput("year3", h6(''), 2005, 2018, value=c(2005,2018),sep = "")),
                  dataTableOutput('prov_comp'),width = '100%')
-             )
+             ),
+    fluidRow("Source(s) ; 25-10-0017, 25-10-0018, 25-10-0019")
       
     ))
 

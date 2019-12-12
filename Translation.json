@@ -1,7 +1,7 @@
 {
   "languages": ["en", "fr"],
   "translation": [
-    {"en": "Thermal Emissions Visualizations", "fr": "Visualisations des émissions thermiques"},
+    {"en": "Electricity generated from combustible fuels", "fr": "Électricité produite à partir de combustibles"},
     {"en": "Thematic Map of Emissions and Output by Fuel Type",
       "fr": "Carte thématique des émissions et de la production par type de carburant"},
     {
@@ -33,8 +33,8 @@
       "fr": "Les graphiques ci-dessous comparent les types de carburant par province sélectionnée. Les graphiques à bulles montrent tous les types de carburant par province, tandis que les graphiques linéaires montrent les carburants sélectionnés dans les menus déroulants Comparer et À:"
     },
     {
-      "en": "Notable stories from thermal energy production",
-      "fr": "Histoires notables de la production d'énergie thermique"
+      "en": "Notable stories related to electricity generated from combustibles",
+      "fr": "Histoires notables liées à l'électricité produite à partir de combustibles"
     },
     {
       "en": "Input(TJ), Output(MWh), emissions(metric tonnes), price($ x 1,000), efficiency ratio",
