@@ -32,20 +32,18 @@ setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
 # create provincial data
 source("create_data.R")
 i18n <- Translator$new(translation_json_path = "Translation.json")
-i18n$set_translation_language("en")
+i18n$set_translation_language("fr")
 
 
 # create input vectors
 years = 2005:2018
 areas = prov_map@data$NAME
 indicators = c("input","output","price",'emission')
-commodities = c("wood","heavy_fuel_oil","diesel","total_coal",
-                "natural_gas","uranium")
-
+commodities = c("wood","heavy_fuel_oil","diesel","total_coal","natural_gas","uranium")
 commodity_labels = toTitleCase(gsub('_', ' ', commodities))
+
 # create user interface
 ui <- dashboardPage(
-  #output$language,
   
   dashboardHeader(title = i18n$t("Electricity generated from combustible fuels"), titleWidth = '100%'),
   
