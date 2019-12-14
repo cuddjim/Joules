@@ -22,6 +22,7 @@ require(formattable)
 require(DT)
 require(scales)
 require(shiny.i18n)
+require(shinyWidgets)
 
 # set working directory
 setwd("~/Documents/Projects/KnownSideEffects/")
@@ -43,20 +44,12 @@ ui <- shinyUI(
   
   fluidPage(
     
-    tags$head(tags$style(
-      
-      HTML('
-         #sidebar {
-            background-color: #dec4de;
-        }
-
-        body, label, input, button, select { 
-          font-family: "Arial";
-        }
-           ')
-      )),
+    tags$head(tags$style(HTML('.navbar .navbar-menu{ background-color: #00b8bd; color: #00b8bd}'))),
     
-    theme = shinytheme("darkly"),
+    tags$script("$(\"input:radio[name='selected_language'][value='en']\").parent().css('background-color', '#FFFFFF');"),
+    theme = shinytheme("flatly"),
+    setBackgroundColor('white'),
+    
     titlePanel('Thematic blah blah'),
     uiOutput('page_content')
     
@@ -142,7 +135,7 @@ server <- shinyServer(function(input, output) {
     prov_map@data %<>% 
       mutate(emissions=round(rowMeans(select(.,min_emissions:max_emissions),na.rm=TRUE),0),
              outputs=round(rowMeans(select(.,min_outputs:max_outputs),na.rm=TRUE),0)) %>% 
-      mutate(scaled_outputs = scale(outputs))
+      mutate(scaled_outputs = log(1+outputs)^2)
     
     prov_map
     
@@ -151,7 +144,7 @@ server <- shinyServer(function(input, output) {
   output$plot <- renderLeaflet({
     
     prov_popup <- paste0('<strong>',map_reactive()$NAME,', ',
-                         input$map_commodity,"</strong> <br>",
+                         i18n()$t(toTitleCase(gsub('_', ' ', input$map_commodity))),"</strong> <br>",
                          '<strong>',i18n()$t("Emissions"),': </strong>',formatC(round(map_reactive()$emissions,0), format = 'd', big.mark = ","), " tonnes",
                          '<br><strong>',i18n()$t("Outputs"),': </strong>',formatC(round(map_reactive()$outputs,0), format = 'd', big.mark = ","), " MWh")
     
@@ -176,7 +169,7 @@ server <- shinyServer(function(input, output) {
                  fillOpacity = 1,
                  color = 'black',
                  popup = prov_popup,
-                 weight = ~scaled_outputs*23) %>% 
+                 weight = ~scaled_outputs) %>% 
       addLegend(opacity = 0.7, title = i18n()$t("CO2e Emissions (tonnes)"),"bottomleft", 
                 pal = colorBin(palette = "YlOrRd", domain = map_reactive()$emissions, 5), values = huey, 
                 labFormat = labelFormat(transform = function(huey) sort(huey, decreasing = FALSE)))
@@ -188,34 +181,32 @@ server <- shinyServer(function(input, output) {
   
   output$page_content <- renderUI({
     
-    # fluidRow(
-    #   
-    #   column(
-    #     radioGroupButtons(
-    #         inputId = "selected_language",
-    #         #label =  i18n()$t("Change language"),
-    #         choices = translator$languages,
-    #         selected = input$selected_language,
-    #         justified = TRUE,
-    #         ), width=4
-    #     )
-    # )
-    
     navbarPage('',
         
-               tabPanel('Language',
-                 sidebarPanel('',
-                              div(radioGroupButtons(
-                                inputId = "selected_language",
-                                #label =  i18n()$t("Change language"),
-                                choices = translator$languages,
-                                selected = input$selected_language,
-                                justified = TRUE,
-                                width='100%'
-                              ), style="float:center"),
-                              width=2
-                 )
-               ),
+               # tabPanel('Language',
+               #   sidebarPanel('',
+               #                div(radioGroupButtons(
+               #                  inputId = "selected_language",
+               #                  #label =  i18n()$t("Change language"),
+               #                  choices = translator$languages,
+               #                  selected = input$selected_language,
+               #                  justified = TRUE,
+               #                  width='100%'
+               #                ), style="float:center"),
+               #                width=2
+               #   )
+               # ),
+               
+               navbarMenu(
+                 'Language',
+                 radioGroupButtons(
+                     inputId = "selected_language",
+                     #label =  i18n()$t("Change language"),
+                     choices = translator$languages,
+                     selected = input$selected_language,
+                     justified = TRUE,width="100px"
+                   )
+                 ),
                
         tabPanel(i18n()$t('Comparing Provincial Thermal Emissions'),
                  

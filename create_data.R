@@ -122,6 +122,7 @@ prov_centroids = gCentroid(prov_map,byid=TRUE) %>%
   mutate(NAME=prov_map$NAME)
 
 prov_centroids[which(prov_centroids$NAME=='Nunavut'),c('x','y')] = c(-97,64)
+prov_centroids[which(prov_centroids$NAME=='Northwest Territories'),c('x','y')] = c(-118.5,65)
 
 prov_map %<>% 
   left_join(subject_matter_1, by=c('NAME'='province')) %>%
