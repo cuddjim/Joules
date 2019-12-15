@@ -23,6 +23,7 @@ require(DT)
 require(scales)
 require(shiny.i18n)
 require(shinyWidgets)
+require(LaCroixColoR)
 
 # set working directory
 setwd("~/Documents/Projects/KnownSideEffects/")
@@ -44,13 +45,19 @@ ui <- shinyUI(
   
   fluidPage(
     
+    tags$style(HTML('.navbar-nav > li > a, .navbar-brand {
+                   padding-top:14px !important;
+                   padding-bottom:4px !important;
+                   height: 50px;
+                 }
+                 .navbar {min-height:50px !important;}')),
     tags$head(tags$style(HTML('.navbar .navbar-menu{ background-color: #00b8bd; color: #00b8bd}'))),
-    
-    tags$script("$(\"input:radio[name='selected_language'][value='en']\").parent().css('background-color', '#FFFFFF');"),
+    tags$script("$(\"input:radio[name='selected_language'][value='fr']\").parent().css('background-color', '#FFFFFF');"),
     theme = shinytheme("flatly"),
+    chooseSliderSkin("HTML5",color='#000039'),
     setBackgroundColor('white'),
-    
-    titlePanel('Thematic blah blah'),
+    titlePanel(h1('A Story of Thermal Emissions in Canada', 
+                  style = "font-family: 'Palatino', bold; font-weight: bold; line-height: 1.1; color: #000000;")),
     uiOutput('page_content')
     
   )
@@ -74,8 +81,8 @@ server <- shinyServer(function(input, output) {
   
   bubble_reactive <- reactive({
     
-    min_year = 2010
-    max_year = 2015
+    min_year = min(input$year)
+    max_year = max(input$year)
     selected_province = input$province
     
     subject_matter_2 %>%
@@ -89,16 +96,16 @@ server <- shinyServer(function(input, output) {
     
     bubble_reactive() %>%
       plot_ly(type = 'scatter', mode = 'markers', x = ~input, y = ~output, color = ~commodity,
-              colors = viridis_pal(option = "D")(10), name = ~toTitleCase(gsub('_', ' ', commodity)),
+              colors = c("#FF3200","#E9A17C","#E9E4A6","#1BB6AF","#0076BB","#172869"), name = ~toTitleCase(gsub('_', ' ', commodity)),
               marker = list(size = ~price, line = list(width = 1, color = '#FFFFFF')), hoverinfo = 'text', 
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Cost: </b>$',format(round(price,2),big.mark=",",scientific=FALSE),'<br>',
                           '<b>Input: </b>',format(round(input,1),big.mark=",",scientific=FALSE),'TJ','<br>',
                           '<b>Electricity generated: </b>',format(round(output,1),big.mark=",",scientific=FALSE),'TJ')) %>%
-      layout(title = paste0('Comparing ',input$province,' Energy Types'),
-             xaxis = list(title = i18n()$t('Inputs (TJ x 1,000)'),zeroline=FALSE),
-             yaxis = list(title = i18n()$t('Electricity generated(TJ)'),zeroline=FALSE),margin = list(t=75,b=20), 
-             legend = list(orientation = 'h',y=-0.4, font = list(size = 10))) %>% 
+      layout(title = paste0('<b>Comparing ',input$province,' Energy Types</b>'),
+             xaxis = list(title = i18n()$t('<b>Inputs (TJ x 1,000)</b>'),zeroline=FALSE),
+             yaxis = list(title = i18n()$t('<b>Electricity generated(TJ)</b>'),zeroline=FALSE),margin = list(t=75,b=20), 
+             legend = list(orientation = 'h',y=-0.4, font = list(family='Helvetica Neue', size = 10))) %>% 
       config(displayModeBar = F)
     
   })
@@ -109,8 +116,9 @@ server <- shinyServer(function(input, output) {
     
     bubble_reactive() %>%
       plot_ly(type = 'scatter', mode = 'markers', x = ~efficiency, y = ~emission, color = ~commodity,
-              colors = viridis_pal(option = "D")(10),
-              marker = list(size = ~price, line = list(width = 1, color = '#FFFFFF')), hoverinfo = 'text',
+              colors = c("#FF3200","#E9A17C","#E9E4A6","#1BB6AF","#0076BB","#172869"),
+              marker = list(size = ~price, line = list(width = 1, color = '#FFFFFF')), 
+              hoverinfo = 'text',
               text=~paste('<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
                           '<b>Cost: </b>$',format(round(price,2),big.mark=",",scientific=FALSE),'<br>',
                           '<b>',i18n()$t('Efficiency'),': </b>',format(round(efficiency,1),big.mark=",",scientific=FALSE),'TJ','<br>',
@@ -124,8 +132,8 @@ server <- shinyServer(function(input, output) {
   
   map_reactive <- reactive({
     
-    min_year = 2010
-    max_year = 2015
+    min_year = min(input$year)
+    max_year = max(input$year)
     map_commodity = input$map_commodity
     min_emissions = str_c(map_commodity,'_emission_',min_year)
     max_emissions = str_c(map_commodity,'_emission_',max_year)
@@ -135,7 +143,7 @@ server <- shinyServer(function(input, output) {
     prov_map@data %<>% 
       mutate(emissions=round(rowMeans(select(.,min_emissions:max_emissions),na.rm=TRUE),0),
              outputs=round(rowMeans(select(.,min_outputs:max_outputs),na.rm=TRUE),0)) %>% 
-      mutate(scaled_outputs = log(1+outputs)^2)
+      mutate(scaled_outputs = log(1+outputs)^2.5)
     
     prov_map
     
@@ -148,9 +156,6 @@ server <- shinyServer(function(input, output) {
                          '<strong>',i18n()$t("Emissions"),': </strong>',formatC(round(map_reactive()$emissions,0), format = 'd', big.mark = ","), " tonnes",
                          '<br><strong>',i18n()$t("Outputs"),': </strong>',formatC(round(map_reactive()$outputs,0), format = 'd', big.mark = ","), " MWh")
     
-    color_pal <- colorNumeric(palette = "YlOrRd", 
-                              domain = map_reactive()$emissions)
-    
     huey = map_reactive()$emissions
     
     leaflet(options = leafletOptions(minZoom = 4, maxZoom = 4,
@@ -161,17 +166,17 @@ server <- shinyServer(function(input, output) {
       clearShapes() %>%
       clearControls() %>%
       addPolygons(data = map_reactive(),
-                  fillColor = ~colorBin("YlOrRd", emissions, 5)(emissions),
+                  fillColor = ~colorBin(c("#E1F5C4","#EDE574","#F9D423","#FC913A","#FF4E50"), emissions, 5)(emissions),
                   color = "#BDBDC3",
                   fillOpacity = 0.7,
-                  weight = 1) %>%
+                  weight = 4) %>%
       addCircles(data=map_reactive(), lng = ~x, lat = ~y,
                  fillOpacity = 1,
                  color = 'black',
                  popup = prov_popup,
                  weight = ~scaled_outputs) %>% 
       addLegend(opacity = 0.7, title = i18n()$t("CO2e Emissions (tonnes)"),"bottomleft", 
-                pal = colorBin(palette = "YlOrRd", domain = map_reactive()$emissions, 5), values = huey, 
+                pal = colorBin(palette = c("#E1F5C4","#EDE574","#F9D423","#FC913A","#FF4E50"), domain = map_reactive()$emissions, 5), values = huey, 
                 labFormat = labelFormat(transform = function(huey) sort(huey, decreasing = FALSE)))
     
   })
@@ -181,75 +186,65 @@ server <- shinyServer(function(input, output) {
   
   output$page_content <- renderUI({
     
-    navbarPage('',
-        
-               # tabPanel('Language',
-               #   sidebarPanel('',
-               #                div(radioGroupButtons(
-               #                  inputId = "selected_language",
-               #                  #label =  i18n()$t("Change language"),
-               #                  choices = translator$languages,
-               #                  selected = input$selected_language,
-               #                  justified = TRUE,
-               #                  width='100%'
-               #                ), style="float:center"),
-               #                width=2
-               #   )
-               # ),
+    navbarPage('Statistics Canada',
                
-               navbarMenu(
+               tabPanel(
+                 
                  'Language',
+                 
                  radioGroupButtons(
-                     inputId = "selected_language",
-                     #label =  i18n()$t("Change language"),
-                     choices = translator$languages,
-                     selected = input$selected_language,
-                     justified = TRUE,width="100px"
-                   )
+                   inputId = "selected_language",
+                   choiceValues = translator$languages,
+                   choiceNames = c('English','Francais'),
+                   selected = input$selected_language,
+                   justified = TRUE,width="200px"
                  ),
+                 icon = NULL
+                 
+               ),
                
-        tabPanel(i18n()$t('Comparing Provincial Thermal Emissions'),
+               tabPanel(
+                 
+                 i18n()$t('Comparing Provincial Thermal Emissions'),
                  
                  sidebarPanel(
-                   
                    selectizeInput("map_commodity", label = i18n()$t('Select Fuel Type'),
-                                  choices = setNames(commodities,i18n()$t(commodity_labels)), selected = 'diesel'),
+                                  choices = setNames(commodities,i18n()$t(commodity_labels)),
+                                  selected = 'diesel'), 
                    width=2
-                   
-                 ),
+                          ),
                  
                  mainPanel(
-                   
-                   leafletOutput("plot",height=600),
+                   leafletOutput("plot",height=600), 
                    width=10
-                   
                    )
                  
                  ),
         
-        tabPanel('Comparing Thermal Energy Types',
-                 
-                 sidebarPanel(
-                   
-                   selectInput("province", label = i18n()$t('Select Province'),
-                               choices = areas, selected='Ontario')
-                   
-                 ),
-                 
-                 mainPanel(
-                   
-                   fluidRow(
-                     
-                     plotlyOutput("bubble_1"),
-                     plotlyOutput("bubble_2")
-                     
+        tabPanel(
+          
+          i18n()$t('Comparing Thermal Energy Types'),
+          
+          sidebarPanel(
+                   selectizeInput("province", label = i18n()$t('Select Province'),
+                                  choices = areas, selected='Ontario'),
+                   sliderInput("year", label = i18n()$t('Select Year'), 
+                               2005, 2018, value=c(2005,2018),
+                               sep = ""),
+                   width=3
                    ),
-                   width=6
-                   
-                   )
+          
+          mainPanel(
+            fluidRow(
+              plotlyOutput("bubble_1"),
+              plotlyOutput("bubble_2")
+              ),
+            width=6
+            )
+          
+          )
         
         )
-      )
       
   })
   
