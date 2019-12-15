@@ -1,4 +1,14 @@
 
+
+# load libraries
+require(shinythemes); require(shiny); require(shiny.i18n); require(shinyWidgets)
+require(tidyverse); require(magrittr)
+require(leaflet); require(rgdal); require(spdplyr); require(rgeos); require(geosphere)
+require(plotly); require(RColorBrewer); require(LaCroixColoR); require(scales)
+require(httr); require(stringi); require(reshape2); require(tools)
+require(formattable); require(DT)
+
+
 convert_inputs_to_emissions = data.frame(
   
   commodity = c("wood","heavy_fuel_oil","diesel","total_coal",
@@ -127,4 +137,15 @@ prov_centroids[which(prov_centroids$NAME=='Northwest Territories'),c('x','y')] =
 prov_map %<>% 
   left_join(subject_matter_1, by=c('NAME'='province')) %>%
   left_join(prov_centroids, by=c('NAME'))
+
+
+# create input vectors
+years = 2005:2018
+areas = prov_map@data$NAME
+indicators = c("input","output","price",'emission')
+indicator_labels = c('Inputs (TJ)', 'Outputs', 'Cost/unit ($ x 1,000)', 'Emissions')
+commodities = c("wood","heavy_fuel_oil","diesel","total_coal","natural_gas","uranium")
+commodity_labels = toTitleCase(gsub('_', ' ', commodities))
+
+
 
