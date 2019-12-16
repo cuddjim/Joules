@@ -1,10 +1,11 @@
 
-
+# install.packages('LaCroixColoR')
 # load libraries
 require(shinythemes); require(shiny); require(shiny.i18n); require(shinyWidgets)
 require(tidyverse); require(magrittr)
 require(leaflet); require(rgdal); require(spdplyr); require(rgeos); require(geosphere)
-require(plotly); require(RColorBrewer); require(LaCroixColoR); require(scales)
+require(plotly); require(RColorBrewer); #require(LaCroixColoR); 
+require(scales)
 require(httr); require(stringi); require(reshape2); require(tools)
 require(formattable); require(DT)
 
@@ -142,5 +143,15 @@ indicator_labels = c('Inputs (TJ)', 'Outputs', 'Cost/unit ($ x 1,000)', 'Emissio
 commodities = c("wood","heavy_fuel_oil","diesel","total_coal","natural_gas","uranium")
 commodity_labels = toTitleCase(gsub('_', ' ', commodities))
 
+
+
+# create stories
+story <- data.frame(province=c('Ontario','Prince Edward Island','Nunavut'),
+                    Story=c("Ontario eliminates coal",
+                            "PEI wind electricity",
+                            "Energy in the North"),
+                    Description=c("In 2001, Ontario had 5 coal fired generating stations with a capacity of roughly 8,800 TJ. By 2014, all coal generating stations ceased operations to be replaced with a mixture of nuclear, natural gas fired, and non-hydro renewable plants. The Atikokan and Thunder Bay generating stations are now exclusively biomass based facilities",
+                                  "PEI has no sources of oil, natural gas, or other fuels used traditionally for electricity generation. Instead 99% of their electricity production comes from wind mills. However, wind production only is able to meet roughly 25% of PEI's demand for electricity. The remainder is imported from New Brunswick. There is an ideal wind speed for wind generated electricity.The wind needs to be fast enough to move the wind turbine (12-14 km/h), but not too strong that the turbines need to be shut down in order to protect them (roughly 90 km/h). The ideal wind speed to for the turbines to be at full capacity is between 50 to 60 km/h.",
+                                  "Unlike the rest of Canada where the major fuel used (except in transportation) is natural gas, the North runs on diesel. Energy options in the North are limited because there is no infrastructure in place that allows electricity to be imported from Southern Canada. All electricity consumed must be generated locally. In Nunavut, 100% of electricity generation comes from diesel where in Yukon the main type of electricity generation is hydro with diesel making up the difference. In some communities in the North unsubsidized electricity costs are 10 times that of the Canadian average on a per KWh basis whereas consumption is twice that national average."))
 
 

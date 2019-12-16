@@ -158,6 +158,20 @@ server <- shinyServer(function(input, output) {
     
   })
   
+  story_reactive <- reactive({
+    
+    selected_province = input$province_story
+    
+    story %>% 
+      filter(province == selected_province)
+    
+  })
+  
+  output$storytable <- renderDataTable({
+    as.datatable(story_reactive() %>% 
+                   formattable(),options=list(dom='t'))
+  })
+  
   # create map
   map_reactive <- reactive({
     
@@ -292,11 +306,11 @@ server <- shinyServer(function(input, output) {
                  sidebarPanel(
                    selectizeInput("line_province", label = tr()$t('Select Province'),
                                   choices = tr()$t(areas), selected='Ontario'),
-                   selectizeInput("line_indicator", label = tr()$t('Select Y Indicator'),
+                   selectizeInput("line_indicator", label = tr()$t('Select Indicator'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='input'),
-                   selectizeInput("y_energy_1", label = tr()$t('Select Y Indicator'),
+                   selectizeInput("y_energy_1", label = tr()$t('Compare'),
                                   choices = setNames(commodities,tr()$t(commodity_labels)), selected='total_coal'),
-                   selectizeInput("y_energy_2", label = tr()$t('Select Y Indicator'),
+                   selectizeInput("y_energy_2", label = tr()$t('To'),
                                   choices = setNames(commodities,tr()$t(commodity_labels)), selected='natural_gas'),
                    sliderInput("year_line", label = tr()$t('Select Year'), 
                                2005, 2018, value=c(2005,2018),
@@ -309,6 +323,22 @@ server <- shinyServer(function(input, output) {
                      plotlyOutput("line")
                    ),
                    width=8
+                 )
+                 
+               ),
+               tabPanel(
+                 
+                 tr()$t('Data stories'),
+                 
+                 sidebarPanel(
+                   selectizeInput("province_story", label = tr()$t('Select Province'),
+                                  choices = tr()$t(areas), selected='Ontario'), 
+                   width=2
+                 ),
+                 
+                 mainPanel(
+                   dataTableOutput("storytable"), 
+                   width=10
                  )
                  
                )
