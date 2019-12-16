@@ -4,16 +4,16 @@
     "created" : 1576500138839.000,
     "dirty" : false,
     "encoding" : "UTF-8",
-    "folds" : "43|18|59|2|\n111|29|129|2|\n131|31|158|2|\n161|28|177|2|\n179|32|209|2|\n",
-    "hash" : "0",
+    "folds" : "",
+    "hash" : "300964345",
     "id" : "A78FD48E",
-    "lastKnownWriteTime" : 1576501722,
-    "last_content_update" : 1576501722401,
+    "lastKnownWriteTime" : 1576536522,
+    "last_content_update" : 1576536522336,
     "path" : "~/Documents/Projects/KnownSideEffects/app.R",
     "project_path" : "app.R",
     "properties" : {
-        "cursorPosition" : "323,0",
-        "scrollLine" : "67"
+        "cursorPosition" : "361,0",
+        "scrollLine" : "23"
     },
     "read_only" : false,
     "read_only_alternatives" : [

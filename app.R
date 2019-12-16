@@ -36,7 +36,7 @@ ui <- shinyUI(
   )
 )
 
-translator <- Translator$new(translation_json_path = "translation.json")
+translator <- Translator$new(translation_json_path = "Translation.json")
 
 server <- shinyServer(function(input, output) {
   
@@ -63,7 +63,7 @@ server <- shinyServer(function(input, output) {
   bubble_reactive <- reactive({
     
     selected_province = input$province
-    min_year = min(input$year); max_year = max(input$year)
+    min_year = min(input$bubble_year); max_year = max(input$bubble_year)
     x_indicator = input$x_indicator;  y_indicator = input$y_indicator; b_indicator = input$b_indicator
     
     subject_matter_2 %>%
@@ -276,14 +276,14 @@ server <- shinyServer(function(input, output) {
                  
                  sidebarPanel(
                    selectizeInput("province", label = tr()$t('Select Province'),
-                                  choices = tr()$t(areas), selected='Ontario'),
+                                  choices = setNames(areas,tr()$t(areas)), selected='Ontario'),
                    selectizeInput("x_indicator", label = tr()$t('Select variable (x-axis)'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='input'),
                    selectizeInput("y_indicator", label = tr()$t('Select variable (y-axis)'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='output'),
                    selectizeInput("b_indicator", label = tr()$t('Select variable (bubble size)'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='price'),
-                   sliderInput("year", label = tr()$t('Select period'), 
+                   sliderInput("bubble_year", label = tr()$t('Select period'), 
                                2005, 2018, value=c(2005,2018),
                                sep = ""),
                    width=3
@@ -304,7 +304,7 @@ server <- shinyServer(function(input, output) {
                  
                  sidebarPanel(
                    selectizeInput("line_province", label = tr()$t('Select Province'),
-                                  choices = tr()$t(areas), selected='Ontario'),
+                                  choices = setNames(areas,tr()$t(areas)), selected='Ontario'),
                    selectizeInput("line_indicator", label = tr()$t('Select variable'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='input'),
                    selectizeInput("y_energy_1", label = tr()$t('Compare'),
