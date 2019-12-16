@@ -5,9 +5,9 @@ account: cuddjim
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1540249
-bundleId: 2647333
+bundleId: 2671698
 url: https://cuddjim.shinyapps.io/KnownSideEffects/
-when: 1575659302.83298
+when: 1576501802.36115
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: action_items|Conversion factors.xlsx|convert_units.R
+ignoredFiles: .RData|~$provements.docx|action_items|bilingual_app.R|Conversion factors.xlsx|convert_units.R|improvements.docx|old_app.R

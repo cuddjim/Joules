@@ -1,6 +1,6 @@
 
 # set working directory
-setwd("~/Documents/Projects/KnownSideEffects/")
+#setwd("~/Documents/Projects/KnownSideEffects/")
 # setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
 # setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
 # setwd("C:/Users/cuddjim/Documents/KnownSideEffects")
@@ -72,7 +72,9 @@ server <- shinyServer(function(input, output) {
              efficiency=output/input) %>%
       mutate(selected_x_axis = as.numeric(paste0(!!sym(x_indicator))),
              selected_y_axis = as.numeric(paste0(!!sym(y_indicator))),
-             selected_b_axis = as.numeric(paste0(!!sym(b_indicator))))
+             selected_b_axis = as.numeric(paste0(!!sym(b_indicator)))) %>%
+      mutate(mean_b_axis = median(selected_b_axis,na.rm=TRUE)) %>%
+      mutate(selected_b_axis=1000*selected_b_axis/mean_b_axis)
     
   })
   
@@ -80,8 +82,8 @@ server <- shinyServer(function(input, output) {
     
     bubble_reactive() %>%
       plot_ly(
-        type = 'scatter', mode = 'markers', 
-        marker = list(size = ~selected_b_axis*3, opacity = 0.5, line = list(width = 1, color = '#FFFFFF')), 
+        type = 'scatter', mode = 'markers', size = ~selected_b_axis, 
+        marker = list(sizemode='diameter',opacity = 0.5, line = list(width = 1, color = '#FFFFFF')), 
         x = ~selected_x_axis, y = ~selected_y_axis, 
         color = ~commodity, colors = c("#FF3200","#E9A17C","#E9E4A6","#1BB6AF","#0076BB","#172869"),
         hoverinfo = 'text',
@@ -102,7 +104,7 @@ server <- shinyServer(function(input, output) {
           zeroline=FALSE),
         legend = list(font = list(family='Helvetica Neue', weight='bold',size = 10))
       ) %>% 
-      config(displayModeBar = F)
+      plotly::config(displayModeBar = F)
     
   })
   
@@ -145,14 +147,14 @@ server <- shinyServer(function(input, output) {
         legendgroup = ~selected_commodity_1
       ) %>%
       layout(
-        title = paste0('<b>Comparing ',tr()$t(paste0(indicator_labels[which(indicators==input$line_indicator)])),
-                       ' of ',toTitleCase(gsub('_', ' ', input$y_energy_1)),' to ',
-                       toTitleCase(gsub('_', ' ', input$y_energy_2)),'</b>'),
+        # title = paste0('<b>Comparing ',tr()$t(paste0(indicator_labels[which(indicators==input$line_indicator)])),
+        #                ' of ',toTitleCase(gsub('_', ' ', input$y_energy_1)),' to ',
+        #                toTitleCase(gsub('_', ' ', input$y_energy_2)),'</b>'),
         xaxis = list(title = "",showline=FALSE, range = c(min(input$year_line),max(input$year_line))),
         yaxis = list(range=c(0,~max(c(line_reactive()$selected_commodity_1,line_reactive()$selected_commodity_2))),
-                     side = 'left', title = i18n$t('Inputs (TJ)'), showgrid = FALSE, showline = FALSE)
-      ) %>% 
-      config(displayModeBar = F)
+                     side = 'left', title = tr()$t('Inputs (TJ)'), showgrid = FALSE, showline = FALSE)
+      ) %>%
+      plotly::config(displayModeBar = F)
     
   })
   
