@@ -15,11 +15,11 @@
     },
     {
       "en": "Select Fuel Type",
-      "fr": "Sélectionnez le blah blah"
+      "fr": "Sélectionnez le Combustible"
     },
     {
       "en": "Comparing Thermal Energy Types",
-      "fr": "Comparez le blah blah"
+      "fr": "Comparez le Type d'Énergie Combustible"
     },
     {
       "en": "Emissions",
@@ -75,7 +75,7 @@
     },
     {
       "en": "Comparing Provincial Thermal Emissions",
-      "fr": "Comparez du blah blah"
+      "fr": "Comparez les Émissions Thermiques par Province"
     },
     {
       "en": "PEI wind electricity",
