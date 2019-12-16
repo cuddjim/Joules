@@ -28,7 +28,7 @@ ui <- shinyUI(
     chooseSliderSkin("HTML5",color='#000039'),
     setBackgroundColor('white'),
     
-    titlePanel(h1('A Story of Thermal Emissions in Canada', 
+    titlePanel(h1('Electricity generated from fossil fuels', 
                   style = "font-family: 'Palatino', bold; font-weight: bold; line-height: 1.1; color: #000000;")),
     uiOutput('page_content_1'),
     uiOutput('page_content')
@@ -67,7 +67,7 @@ server <- shinyServer(function(input, output) {
     x_indicator = input$x_indicator;  y_indicator = input$y_indicator; b_indicator = input$b_indicator
     
     subject_matter_2 %>%
-      filter(province == selected_province & year %in% min_year:max_year) %>%
+      filter(province == selected_province & year %in% min_year:max_year & commodity != 'uranium') %>% 
       mutate(year_opacity = ((year-1999)^3)/6859,
              efficiency=output/input) %>%
       mutate(selected_x_axis = as.numeric(paste0(!!sym(x_indicator))),
@@ -75,6 +75,8 @@ server <- shinyServer(function(input, output) {
              selected_b_axis = as.numeric(paste0(!!sym(b_indicator)))) %>%
       mutate(mean_b_axis = median(selected_b_axis,na.rm=TRUE)) %>%
       mutate(selected_b_axis=1000*selected_b_axis/mean_b_axis)
+    
+    
     
   })
   
@@ -90,7 +92,7 @@ server <- shinyServer(function(input, output) {
         text=~paste(
           '<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
           '<b>Cost: </b>$',format(round(price,2),big.mark=",",scientific=FALSE),'<br>',
-          '<b>',tr()$t('Efficiency'),': </b>', format(round(input,1), big.mark=",", scientific=FALSE), 'TJ', '<br>',
+          '<b>Efficiency: </b>', format(round(100*output/input,1), big.mark=",", scientific=FALSE),' %', '<br>',
           '<b>Emissions: </b>',format(round(emission,1),big.mark=",",scientific=FALSE),'tonnes'
         )) %>%
       layout(
@@ -102,7 +104,7 @@ server <- shinyServer(function(input, output) {
         yaxis = list(
           title = paste0('<b>',tr()$t(paste0(indicator_labels[which(indicators==input$y_indicator)])),'</b>'), 
           zeroline=FALSE),
-        legend = list(font = list(family='Helvetica Neue', weight='bold',size = 10))
+        legend = list(orientation = 'h', y = -0.3, font = list(family='Helvetica Neue', weight='bold',size = 18))
       ) %>% 
       plotly::config(displayModeBar = F)
     
@@ -135,14 +137,14 @@ server <- shinyServer(function(input, output) {
       add_trace(
         type = 'scatter', mode = 'lines', name= toTitleCase(gsub('_', ' ', input$y_energy_1)), 
         x= ~year, y= ~selected_commodity_1,
-        fill = 'tozeroy', fillcolor = 'rgba(255, 212, 96, 0.3)', line = list(color = 'rgba(255, 212, 96, 1)', width = 2),
+        fill = 'tozeroy', fillcolor = 'rgba(255, 12, 2, 0.6)', line = list(color = 'rgba(255, 12, 2, 1)', width = 2),
         hoverinfo = "text", text = ~paste(format(round(selected_commodity_1, 1), big.mark = ",", scientific = FALSE), ' TJ'),
         legendgroup = ~selected_commodity_1
       ) %>%
       add_trace(
         type = 'scatter', mode = 'none', name= toTitleCase(gsub('_', ' ', input$y_energy_2)),
         x= ~year, y= ~selected_commodity_2,
-        fill = 'tozeroy', fillcolor = 'rgba(168, 216, 234, 0.3)', line = list(color = 'rgba(168, 216, 234, 1)', width = 2),
+        fill = 'tozeroy', fillcolor = 'rgba(168, 216, 234, 0.7)', line = list(color = 'rgba(168, 216, 234, 1)', width = 2),
         hoverinfo = "text", text = ~paste(format(round(input,1),big.mark = ",",scientific = FALSE),' TJ'),
         legendgroup = ~selected_commodity_1
       ) %>%
@@ -158,19 +160,15 @@ server <- shinyServer(function(input, output) {
     
   })
   
-  story_reactive <- reactive({
-    
-    selected_province = input$province_story
-    
-    story %>% 
-      filter(province == selected_province)
-    
-  })
-  
   output$storytable <- renderDataTable({
-    as.datatable(story_reactive() %>% 
+    as.datatable(tr()$t(story) %>% 
                    formattable(),options=list(dom='t'))
   })
+  
+  output$about <- renderText({
+    paste(tr()$t("This product would allow Canadians to compare over time and across provinces electricity generation by fuel types. Users are able to analyse the amount of energy used to produce electricity (inputs), the amount of electricity generated (outputs), the efficiency ratios, the fuel cost and emissions. This data is based on the Annual Survey of Electric Thermal Generating Station Fuel Consumption and can be found in the tables: Electricity from fuels, annual generation by electric utility thermal plants, Electric power generation, annual cost of fuel consumed by electric utility thermal plants and Electric power generation, annual fuel consumed by electric utility thermal plants. This survey estimates fuel consumption to generate electricity by utilities. This data was coupled with emission factors published by Environment and Climate Change Canada (hyperlink). The emissions by fuel type were calculated using these emission factors."))
+  })
+  
   
   # create map
   map_reactive <- reactive({
@@ -196,7 +194,7 @@ server <- shinyServer(function(input, output) {
     prov_popup <- paste0('<strong>',map_reactive()$NAME,', ',
                          tr()$t(toTitleCase(gsub('_', ' ', input$map_commodity))),"</strong> <br>",
                          '<strong>',tr()$t("Emissions"),': </strong>',formatC(round(map_reactive()$emissions,0), format = 'd', big.mark = ","), " tonnes",
-                         '<br><strong>',tr()$t("Outputs"),': </strong>',formatC(round(map_reactive()$outputs,0), format = 'd', big.mark = ","), " MWh")
+                         '<br><strong>',tr()$t("Electricity generated"),': </strong>',formatC(round(map_reactive()$outputs,0), format = 'd', big.mark = ","), " TJ")
     
     huey = map_reactive()$emissions
     
@@ -251,16 +249,17 @@ server <- shinyServer(function(input, output) {
   # create ui
   output$page_content <- renderUI({
     
-    navbarPage('Statistics Canada',
+    navbarPage('',
                
                tabPanel(
                  
-                 tr()$t('Comparing Provincial Thermal Emissions'),
+                 tr()$t('Map'),
                  
                  sidebarPanel(
                    selectizeInput("map_commodity", label = tr()$t('Select Fuel Type'),
                                   choices = setNames(commodities,tr()$t(commodity_labels)),
-                                  selected = 'diesel'), 
+                                  selected = 'diesel'),
+                   sliderInput("year", label = tr()$t('Select Year:'),2005, 2018, value=2018,sep = ""), 
                    width=2
                  ),
                  
@@ -273,18 +272,18 @@ server <- shinyServer(function(input, output) {
                
                tabPanel(
                  
-                 tr()$t('Comparing Thermal Energy Types'),
+                 tr()$t('Bubble chart'),
                  
                  sidebarPanel(
                    selectizeInput("province", label = tr()$t('Select Province'),
                                   choices = tr()$t(areas), selected='Ontario'),
-                   selectizeInput("x_indicator", label = tr()$t('Select X Indicator'),
+                   selectizeInput("x_indicator", label = tr()$t('Select variable (x-axis)'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='input'),
-                   selectizeInput("y_indicator", label = tr()$t('Select Y Indicator'),
+                   selectizeInput("y_indicator", label = tr()$t('Select variable (y-axis)'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='output'),
-                   selectizeInput("b_indicator", label = tr()$t('Select B Indicator'),
+                   selectizeInput("b_indicator", label = tr()$t('Select variable (bubble size)'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='price'),
-                   sliderInput("year", label = tr()$t('Select Year'), 
+                   sliderInput("year", label = tr()$t('Select period'), 
                                2005, 2018, value=c(2005,2018),
                                sep = ""),
                    width=3
@@ -301,12 +300,12 @@ server <- shinyServer(function(input, output) {
                
                tabPanel(
                  
-                 tr()$t('Comparing Lines'),
+                 tr()$t('Line chart'),
                  
                  sidebarPanel(
                    selectizeInput("line_province", label = tr()$t('Select Province'),
                                   choices = tr()$t(areas), selected='Ontario'),
-                   selectizeInput("line_indicator", label = tr()$t('Select Indicator'),
+                   selectizeInput("line_indicator", label = tr()$t('Select variable'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='input'),
                    selectizeInput("y_energy_1", label = tr()$t('Compare'),
                                   choices = setNames(commodities,tr()$t(commodity_labels)), selected='total_coal'),
@@ -330,16 +329,25 @@ server <- shinyServer(function(input, output) {
                  
                  tr()$t('Data stories'),
                  
-                 sidebarPanel(
-                   selectizeInput("province_story", label = tr()$t('Select Province'),
-                                  choices = tr()$t(areas), selected='Ontario'), 
-                   width=2
-                 ),
+                 # sidebarPanel(
+                 #   selectizeInput("province_story", label = tr()$t('Select Province'),
+                 #                  choices = tr()$t(areas), selected='Ontario'), 
+                 #   width=2
+                 # ),
                  
                  mainPanel(
                    dataTableOutput("storytable"), 
-                   width=10
+                   width=12
                  )
+                 
+               ),
+               tabPanel(
+                 
+                 tr()$t('About'),
+                 mainPanel(
+                   textOutput('about')
+                 )
+
                  
                )
                

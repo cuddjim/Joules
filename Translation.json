@@ -15,7 +15,7 @@
     },
     {
       "en": "Select Fuel Type",
-      "fr": "Sélectionnez le Combustible"
+      "fr": "Sélectionnez le combustible"
     },
     {
       "en": "Comparing Thermal Energy Types",
@@ -27,27 +27,36 @@
     },
     {
       "en": "Inputs",
-      "fr": "Entrées"
+      "fr": "Combustibles utilisés"
     },
     {
       "en": "Outputs ",
-      "fr": "Outpouttes "
+      "fr": "Électricité produite "
+    },
+	{
+      "en": "Electricity generated",
+      "fr": "Électricité produite"
     },
     {
       "en": "Inputs (TJ x 1,000)",
-      "fr": "Entrées (TJ x 1,000)"
+      "fr": "Combustibles utilisés (TJ x 1,000)"
     },
+
     {
       "en": "Inputs (TJ)",
-      "fr": "Entrées (TJs)"
+      "fr": "Combustibles utilisés (TJ)"
     },
     {
       "en": "Cost/unit ($ x 1,000)",
-      "fr": "Prix/unité ($ x 1,000)"
+      "fr": "Coût/unité ($ x 1,000)"
+    },
+	{
+      "en": "Cost/unit ($/TJ)",
+      "fr": "Coût/unité ($/TJ)"
     },
     {
       "en": "Average cost/unit ($ x 1,000)",
-      "fr": "Prix/unité moyen ($ x 1,000)"
+      "fr": "Coût/unité moyen ($ x 1,000)"
     },
     {
       "en": "CO2e Emissions (tonnes)",
@@ -55,19 +64,63 @@
     },
     {
       "en": "The graphs below compare fuel types per province selected.The bubble charts show all fuel types per province (the bubble size represents the cost per input), while the line graphs show the fuels selected in the Compare and To drop down menus:",
-      "fr": "Les graphiques ci-dessous comparent les types de carburant par province sélectionnée. Les graphiques à bulles montrent tous les types de carburant par province (la taille des bulles représente le prix par unité), tandis que les graphiques linéaires montrent les carburants sélectionnés dans les menus déroulants Comparer et À:"
+      "fr": "Les graphiques ci-dessous comparent les types de carburant par province sélectionnée. Les graphiques à bulles montrent tous les types de carburant par province (la taille des bulles représente le Coût par unité), tandis que les graphiques linéaires montrent les carburants sélectionnés dans les menus déroulants Comparer et À:"
     },
     {
       "en": "Notable stories related to electricity generated from combustibles",
       "fr": "Histoires notables liées à l'électricité produite à partir de combustibles"
     },
+	{
+      "en": "Map",
+      "fr": "Carte"
+    },
+	{
+		"en": "About",
+		"fr": "À propos"
+	},
+	{
+      "en": "Bubble chart",
+      "fr": "Graphique à bulles"
+    },
+	{
+      "en": "Select variable (x-axis)",
+      "fr": "Sélectionnez la variable (absicisse)"
+    },
+	{
+      "en": "Select variable (y-axis)",
+      "fr": "Sélectionnez la variable (ordonnée)"
+    },
+	{
+      "en": "Select period",
+      "fr": "Sélectionnez la période"
+    },
+	{
+      "en": "Data stories",
+      "fr": "Histoires des données"
+    },
+	{
+      "en": "Select variable (bubble size)",
+      "fr": "Sélectionnez la variable (taille des bulles)"
+    },
+	{
+      "en": "About: This product would allow Canadians to compare over time and across provinces electricity generation by fuel types. Users are able to analyse the amount of energy used to produce electricity (inputs), the amount of electricity generated (outputs), the efficiency ratios, the fuel cost and emissions. This data is based on the Annual Survey of Electric Thermal Generating Station Fuel Consumption and can be found in the tables: Electricity from fuels, annual generation by electric utility thermal plants, Electric power generation, annual cost of fuel consumed by electric utility thermal plants and Electric power generation, annual fuel consumed by electric utility thermal plants. This survey estimates fuel consumption to generate electricity by utilities. This data was coupled with emission factors published by Environment and Climate Change Canada (hyperlink). The emissions by fuel type were calculated using these emission factors.",
+      "fr": "À propos: Ce produit permettrait aux Canadiens de comparer au fil du temps et d'une province à l'autre la production d'électricité par type de combustible. Les utilisateurs peuvent analyser la quantité d'énergie utilisée pour produire de l'électricité (Combustibles utilisés), la quantité d'électricité produite (sorties), les ratios d'efficacité, le coût du carburant et les émissions. Ces données sont basées sur l'Enquête annuelle sur la consommation de carburant des centrales thermiques électriques et peuvent être consultées dans les tableaux: Électricité à partir de combustibles, production annuelle par les centrales thermiques des services publics d'électricité, Production d'électricité, coût annuel du carburant consommé par les centrales thermiques des services publics d'électricité et Production d'électricité, combustible annuel consommé par les centrales thermiques des services publics d'électricité. Cette enquête estime la consommation de carburant pour produire de l'électricité par les services publics. Ces données ont été couplées aux facteurs d'émission publiés par Environnement et Changement climatique Canada (hyperlien). Les émissions par type de carburant ont été calculées à l'aide de ces facteurs d'émission."
+    },
+	{
+      "en": "This product would allow Canadians to compare over time and across provinces electricity generation by fuel types. Users are able to analyse the amount of energy used to produce electricity (inputs), the amount of electricity generated (outputs), the efficiency ratios, the fuel cost and emissions. This data is based on the Annual Survey of Electric Thermal Generating Station Fuel Consumption and can be found in the tables: Electricity from fuels, annual generation by electric utility thermal plants, Electric power generation, annual cost of fuel consumed by electric utility thermal plants and Electric power generation, annual fuel consumed by electric utility thermal plants. This survey estimates fuel consumption to generate electricity by utilities. This data was coupled with emission factors published by Environment and Climate Change Canada (hyperlink). The emissions by fuel type were calculated using these emission factors.",
+      "fr": "Ce produit permettrait aux Canadiens de comparer au fil du temps et d'une province à l'autre la production d'électricité par type de combustible. Les utilisateurs peuvent analyser la quantité d'énergie utilisée pour produire de l'électricité (Combustibles utilisés), la quantité d'électricité produite (sorties), les ratios d'efficacité, le coût du carburant et les émissions. Ces données sont basées sur l'Enquête annuelle sur la consommation de carburant des centrales thermiques électriques et peuvent être consultées dans les tableaux: Électricité à partir de combustibles, production annuelle par les centrales thermiques des services publics d'électricité, Production d'électricité, coût annuel du carburant consommé par les centrales thermiques des services publics d'électricité et Production d'électricité, combustible annuel consommé par les centrales thermiques des services publics d'électricité. Cette enquête estime la consommation de carburant pour produire de l'électricité par les services publics. Ces données ont été couplées aux facteurs d'émission publiés par Environnement et Changement climatique Canada (hyperlien). Les émissions par type de carburant ont été calculées à l'aide de ces facteurs d'émission."
+    },
+	{
+      "en": "Line chart",
+      "fr": "Graphique linéaire"
+    },
     {
       "en": "Input(TJ), Electricity generated(TJ), emissions(metric tonnes), cost($ x 1,000), efficiency ratio",
-      "fr": "Entrée (TJ), production (TJ), émissions (tonnes métriques), prix (x 1000 $), rapport d'efficacité"
+      "fr": "Entrée (TJ), production (TJ), émissions (tonnes métriques), Coût (x 1000 $), rapport d'efficacité"
     },
     {
       "en": "Compare",
-      "fr": "Comparé"
+      "fr": "Comparer"
     },
     {
       "en": "To",
@@ -107,7 +160,7 @@
     },
     {
       "en": "The table below displays total information per time period selected, except for cost/unit where average cost/uit per period selected is displayed.",
-      "fr": "Le tableau ci-dessous affiche le total des informations par période sélectionnée, sauf pour le prix/unité où le prix/unité moyen par période sélectionnée est affiché."
+      "fr": "Le tableau ci-dessous affiche le total des informations par période sélectionnée, sauf pour le Coût/unité où le Coût/unité moyen par période sélectionnée est affiché."
     },
     {
       "en": "Provincial thermal energy information",
@@ -145,17 +198,81 @@
       "en": "Uranium",
       "fr": "Uranium"
     },
+	{
+      "en": "Newfoundland and Labrador",
+      "fr": "Terre-Neuve et Labrador"
+    },
+	{
+      "en": "Prince Edward Island",
+      "fr": "Île-du-Prince-Édouard"
+    },
+	{
+      "en": "Nova Scotia",
+      "fr": "Nouvelle-Écosse"
+    },
+	{
+      "en": "New Brunswick",
+      "fr": "Nouveau-Brunswick"
+    },
+	{
+      "en": "Quebec",
+      "fr": "Québec"
+    },
+	{
+      "en": "Ontario",
+      "fr": "Ontario"
+    },
+	{
+      "en": "Manitoba",
+      "fr": "Manitoba"
+    },
+	{
+      "en": "Saskatchewan",
+      "fr": "Saskatchewan"
+    },
+	{
+      "en": "Alberta",
+      "fr": "Alberta"
+    },
+	{
+      "en": "British Columbia",
+      "fr": "Colombie-Brittanique"
+    },
+	{
+      "en": "Yukon Territory",
+      "fr": "Territoire du Yukon"
+    },
+	{
+      "en": "Northwest Territories",
+      "fr": "Territoires du Nord-Ouest"
+    },
+	{
+      "en": "Nunavut",
+      "fr": "Nunavut"
+    },
     {
       "en": "Select variable to display:",
       "fr": "Sélectionnez la variable à afficher:"
     },
     {
-      "en": "Select year:",
+      "en": "Select year",
+      "fr": "Sélectionnez l'année"
+    },
+	{
+      "en": "Select Year:",
       "fr": "Sélectionnez l'année:"
     },
     {
       "en": "Select Province",
       "fr": "Sélectionnez une Province"
+    },
+	{
+      "en": "Select Province:",
+      "fr": "Sélectionnez une Province:"
+    },
+	{
+      "en": "Select variable",
+      "fr": "Sélectionnez une variable"
     }
     
     ]
