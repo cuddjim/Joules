@@ -1,9 +1,9 @@
 
 # set working directory
-#setwd("~/Documents/Projects/KnownSideEffects/")
-# setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/KnownSideEffects")
-# setwd("C:/Users/lab/Documents/GitHub/KnownSideEffects")
-# setwd("C:/Users/cuddjim/Documents/KnownSideEffects")
+# setwd("~/Documents/Projects/ThermalEnergy/")
+# setwd("C:/Users/jimmy/OneDrive/Documents/GitHub/ThermalEnergy")
+# setwd("C:/Users/lab/Documents/GitHub/ThermalEnergy")
+# setwd("C:/Users/cuddjim/Documents/ThermalEnergy")
 
 # create provincial data
 source("create_data.R")
@@ -91,9 +91,11 @@ server <- shinyServer(function(input, output) {
         hoverinfo = 'text',
         text=~paste(
           '<b>',toTitleCase(gsub('_', ' ', commodity)),year,'</b>','<br>',
-          '<b>Cost: </b>$',format(round(price,2),big.mark=",",scientific=FALSE),'<br>',
-          '<b>Efficiency: </b>', format(round(100*output/input,1), big.mark=",", scientific=FALSE),' %', '<br>',
-          '<b>Emissions: </b>',format(round(emission,1),big.mark=",",scientific=FALSE),'tonnes'
+          '<b>Fuel consumed:</b>',format(round(input,1),big.mark=",",scientific=FALSE),'TJ','<br>',
+          '<b>Electricity generated:</b>',format(round(output,1),big.mark=",",scientific=FALSE),'TJ','<br>',
+          '<b>Cost/unit:</b>',format(round(price,2),big.mark=",",scientific=FALSE),'$/TJ','<br>',
+          '<b>Efficiency:</b>', format(round(100*output/input,1), big.mark=",", scientific=FALSE),'%','<br>',
+          '<b>Emissions:</b>',format(round(emission,1),big.mark=",",scientific=FALSE),'tonnes'
         )) %>%
       layout(
         #title = paste0('<b>Comparing ',input$province,' Energy Types</b>'),
@@ -104,7 +106,7 @@ server <- shinyServer(function(input, output) {
         yaxis = list(
           title = paste0('<b>',tr()$t(paste0(indicator_labels[which(indicators==input$y_indicator)])),'</b>'), 
           zeroline=FALSE),
-        legend = list(orientation = 'h', y = -0.3, font = list(family='Helvetica Neue', weight='bold',size = 18))
+        legend = list(orientation = 'h', xanchor = 'center', x = 0.5,y = -0.13, font = list(family='Helvetica Neue', weight='bold',size = 18))
       ) %>% 
       plotly::config(displayModeBar = F)
     
@@ -120,10 +122,11 @@ server <- shinyServer(function(input, output) {
     min_year = min(input$year_line); max_year = max(input$year_line)
     
     subject_matter_2 %>% 
+      mutate(efficiency = output/input) %>% 
       filter(province == selected_province,
              commodity %in% selected_commodities,
              year %in% min_year:max_year) %>%
-      mutate(selected_indicator = as.numeric(paste0(!!sym(selected_indicator)))) %>%
+      mutate(selected_indicator = as.numeric(paste0(!!sym(selected_indicator)))) %>% 
       spread(commodity,selected_indicator) %>%
       group_by(year) %>%
       mutate(selected_commodity_1 = sum(as.numeric(paste0(!!sym(selected_commodity_1))),na.rm=TRUE),
@@ -161,12 +164,12 @@ server <- shinyServer(function(input, output) {
   })
   
   output$storytable <- renderDataTable({
-    as.datatable(tr()$t(story) %>% 
+    as.datatable(data.frame(Province = tr()$t(province_story), Story = tr()$t(story_title), Description = tr()$t(story_description)) %>% 
                    formattable(),options=list(dom='t'))
   })
   
   output$about <- renderText({
-    paste(tr()$t("This product would allow Canadians to compare over time and across provinces electricity generation by fuel types. Users are able to analyse the amount of energy used to produce electricity (inputs), the amount of electricity generated (outputs), the efficiency ratios, the fuel cost and emissions. This data is based on the Annual Survey of Electric Thermal Generating Station Fuel Consumption and can be found in the tables: Electricity from fuels, annual generation by electric utility thermal plants, Electric power generation, annual cost of fuel consumed by electric utility thermal plants and Electric power generation, annual fuel consumed by electric utility thermal plants. This survey estimates fuel consumption to generate electricity by utilities. This data was coupled with emission factors published by Environment and Climate Change Canada (hyperlink). The emissions by fuel type were calculated using these emission factors."))
+    paste(tr()$t(about_text))
   })
   
   
@@ -259,12 +262,15 @@ server <- shinyServer(function(input, output) {
                    selectizeInput("map_commodity", label = tr()$t('Select Fuel Type'),
                                   choices = setNames(commodities,tr()$t(commodity_labels)),
                                   selected = 'diesel'),
-                   sliderInput("year", label = tr()$t('Select Year:'),2005, 2018, value=2018,sep = ""), 
+                   sliderInput("year", label = tr()$t('Select Year:'),2005, 2018, value=2018,
+                               step=1,
+                               animate=TRUE,
+                               sep = ""), 
                    width=2
                  ),
                  
                  mainPanel(
-                   leafletOutput("plot",height=500), 
+                   leafletOutput("plot",height=600), 
                    width=10
                  )
                  
@@ -276,7 +282,7 @@ server <- shinyServer(function(input, output) {
                  
                  sidebarPanel(
                    selectizeInput("province", label = tr()$t('Select Province'),
-                                  choices = setNames(areas,tr()$t(areas)), selected='Ontario'),
+                                  choices = setNames(areas,tr()$t(areas)), selected='Prince Edward Island'),
                    selectizeInput("x_indicator", label = tr()$t('Select variable (x-axis)'),
                                   choices = setNames(indicators,tr()$t(indicator_labels)), selected='input'),
                    selectizeInput("y_indicator", label = tr()$t('Select variable (y-axis)'),
@@ -291,7 +297,7 @@ server <- shinyServer(function(input, output) {
                  
                  mainPanel(
                    fluidRow(
-                     plotlyOutput("bubble")
+                     plotlyOutput("bubble", height = '650px')
                    ),
                    width=8
                  )
@@ -304,14 +310,14 @@ server <- shinyServer(function(input, output) {
                  
                  sidebarPanel(
                    selectizeInput("line_province", label = tr()$t('Select Province'),
-                                  choices = setNames(areas,tr()$t(areas)), selected='Ontario'),
+                                  choices = setNames(areas,tr()$t(areas)), selected='Alberta'),
                    selectizeInput("line_indicator", label = tr()$t('Select variable'),
-                                  choices = setNames(indicators,tr()$t(indicator_labels)), selected='input'),
+                                  choices = setNames(indicators,tr()$t(indicator_labels)), selected='output'),
                    selectizeInput("y_energy_1", label = tr()$t('Compare'),
                                   choices = setNames(commodities,tr()$t(commodity_labels)), selected='total_coal'),
                    selectizeInput("y_energy_2", label = tr()$t('To'),
                                   choices = setNames(commodities,tr()$t(commodity_labels)), selected='natural_gas'),
-                   sliderInput("year_line", label = tr()$t('Select Year'), 
+                   sliderInput("year_line", label = tr()$t('Select period'), 
                                2005, 2018, value=c(2005,2018),
                                sep = ""),
                    width=3
@@ -319,7 +325,7 @@ server <- shinyServer(function(input, output) {
                  
                  mainPanel(
                    fluidRow(
-                     plotlyOutput("line")
+                     plotlyOutput("line", height = '550px')
                    ),
                    width=8
                  )

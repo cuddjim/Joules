@@ -29,6 +29,38 @@
       "en": "Inputs",
       "fr": "Combustibles utilisés"
     },
+	{
+      "en": "Fuel consumed (TJ)",
+      "fr": "Combustibles utilisés (TJ)"
+    },
+	{
+      "en": "Electricity generated (TJ)",
+      "fr": "Électricité produite (TJ)"
+    },
+	{
+      "en": "Emissions (tonnes of CO2e)",
+      "fr": "Émissions (tonnes de CO2e)"
+    },
+	{
+      "en": "Fuel consumed:",
+      "fr": "Combustibles utilisés:"
+    },
+	{
+      "en": "Electricity generated:",
+      "fr": "Électricité produite:"
+    },
+	{
+      "en": "Cost/unit:",
+      "fr": "Coût/unité:"
+    },
+	{
+      "en": "Emissions:",
+      "fr": "Émissions:"
+    },
+	 {
+      "en": "Efficiency:",
+      "fr": "Efficacité:"
+    },
     {
       "en": "Outputs ",
       "fr": "Électricité produite "
@@ -41,14 +73,9 @@
       "en": "Inputs (TJ x 1,000)",
       "fr": "Combustibles utilisés (TJ x 1,000)"
     },
-
     {
       "en": "Inputs (TJ)",
       "fr": "Combustibles utilisés (TJ)"
-    },
-    {
-      "en": "Cost/unit ($ x 1,000)",
-      "fr": "Coût/unité ($ x 1,000)"
     },
 	{
       "en": "Cost/unit ($/TJ)",

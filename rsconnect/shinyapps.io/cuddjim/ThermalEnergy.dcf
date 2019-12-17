@@ -1,0 +1,13 @@
+name: ThermalEnergy
+title: ThermalEnergy
+username:
+account: cuddjim
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1605616
+bundleId: 2674202
+url: https://cuddjim.shinyapps.io/ThermalEnergy/
+when: 1576549040.25359
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|2510001701_databaseLoadingData.csv|2510001801_databaseLoadingData.csv|2510001901_databaseLoadingData.csv|old_app.R
