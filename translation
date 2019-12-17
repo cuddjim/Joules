@@ -2,7 +2,7 @@
   "languages": ["en", "fr"],
   "translation": [
     {
-      "en": "Electricity generated from combustible fuels", 
+      "en": "Electricity generated from fossil fuels", 
       "fr": "Électricité produite à partir de combustibles"
     },
     {
