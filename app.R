@@ -36,7 +36,7 @@ ui <- shinyUI(
   )
 )
 
-translator <- Translator$new(translation_json_path = "Translation.json")
+translator <- Translator$new(translation_json_path = "translation")
 
 server <- shinyServer(function(input, output) {
   
