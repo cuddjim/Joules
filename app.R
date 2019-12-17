@@ -28,8 +28,7 @@ ui <- shinyUI(
     chooseSliderSkin("HTML5",color='#000039'),
     setBackgroundColor('white'),
     
-    titlePanel(h1('Electricity generated from fossil fuels', 
-                  style = "font-family: 'Palatino', bold; font-weight: bold; line-height: 1.1; color: #000000;")),
+    uiOutput('title_content'),
     uiOutput('page_content_1'),
     uiOutput('page_content')
     
@@ -84,7 +83,7 @@ server <- shinyServer(function(input, output) {
     
     bubble_reactive() %>%
       plot_ly(
-        type = 'scatter', mode = 'markers', size = ~selected_b_axis, 
+        type = 'scatter', mode = 'markers', size = ~selected_b_axis, name = ~tr()$t(toTitleCase(gsub('_', ' ', commodity))),
         marker = list(sizemode='diameter',opacity = 0.5, line = list(width = 1, color = '#FFFFFF')), 
         x = ~selected_x_axis, y = ~selected_y_axis, 
         color = ~commodity, colors = c("#FF3200","#E9A17C","#E9E4A6","#1BB6AF","#0076BB","#172869"),
@@ -138,7 +137,7 @@ server <- shinyServer(function(input, output) {
     
     plot_ly(data=line_reactive()) %>%
       add_trace(
-        type = 'scatter', mode = 'lines', name= toTitleCase(gsub('_', ' ', input$y_energy_1)), 
+        type = 'scatter', mode = 'lines', name = tr()$t(toTitleCase(gsub('_', ' ', input$y_energy_1))), 
         x= ~year, y= ~selected_commodity_1,
         fill = 'tozeroy', fillcolor = 'rgba(255, 12, 2, 0.6)', line = list(color = 'rgba(255, 12, 2, 1)', width = 2),
         hoverinfo = "text", text = ~paste(format(round(selected_commodity_1, 1), big.mark = ",", scientific = FALSE), ' TJ'),
@@ -157,7 +156,8 @@ server <- shinyServer(function(input, output) {
         #                toTitleCase(gsub('_', ' ', input$y_energy_2)),'</b>'),
         xaxis = list(title = "",showline=FALSE, range = c(min(input$year_line),max(input$year_line))),
         yaxis = list(range=c(0,~max(c(line_reactive()$selected_commodity_1,line_reactive()$selected_commodity_2))),
-                     side = 'left', title = tr()$t('Inputs (TJ)'), showgrid = FALSE, showline = FALSE)
+                     side = 'left', title = paste0('<b>',tr()$t(paste0(indicator_labels[which(indicators==input$line_indicator)])),'</b>'),
+                     showgrid = FALSE, showline = FALSE)
       ) %>%
       plotly::config(displayModeBar = F)
     
@@ -246,6 +246,13 @@ server <- shinyServer(function(input, output) {
         
       )
     )
+    
+  })
+  
+  output$title_content = renderUI({
+    
+    titlePanel(h1(tr()$t('Electricity generated from fossil fuels'), 
+                  style = "font-family: 'Palatino', bold; font-weight: bold; line-height: 1.1; color: #000000;"))
     
   })
   
